@@ -1,0 +1,366 @@
+/* ========================================
+   GLOBAL VARIABLES & RESET
+========================================
+*/
+:root {
+    --maastricht-blue: #001C30;
+    --accent-orange: #F59E0B;
+    --bg-light: #F8FAFC;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { 
+    font-family: 'Inter', sans-serif; 
+    background-color: var(--bg-light); 
+    display: flex; 
+    min-height: 100vh;
+}
+
+/* ========================================
+   SIDEBAR (Shared across all pages)
+========================================
+*/
+.db-sidebar {
+    width: 280px;
+    background-color: var(--maastricht-blue);
+    color: white;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.db-logo-section { padding: 40px 30px; }
+.db-logo-section h1 { font-size: 24px; font-weight: 700; }
+.db-logo-section h1 span { color: var(--accent-orange); }
+
+.db-nav-item a {
+    display: flex;
+    align-items: center;
+    padding: 15px 30px;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.db-nav-item.active a {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border-left: 4px solid var(--accent-orange);
+}
+
+.db-nav-item a i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+    font-size: 16px; /* Inayos para sa bagong icons */
+}
+
+.db-section-header { padding: 25px 30px 10px; font-size: 10px; opacity: 0.3; text-transform: uppercase; }
+
+/* ========================================
+   DASHBOARD SECTION
+========================================
+*/
+.db-main { flex: 1; padding: 50px; }
+.db-header { margin-bottom: 40px; }
+
+.db-stats-grid { 
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 25px; 
+    margin-bottom: 40px; 
+}
+
+.db-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    border-left: 5px solid #CBD5E1;
+}
+
+.db-card.blue { border-left-color: #3B82F6; }
+.db-card.orange { border-left-color: var(--accent-orange); }
+.db-card.sky { border-left-color: #7DD3FC; }
+.db-card.dark { border-left-color: #0F172A; }
+
+.db-card .value { font-size: 26px; font-weight: 800; margin: 10px 0; display: block; }
+
+/* Chart Alignment Fixes */
+.db-charts-container { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 30px; /* Eto ang "line margin" sa pagitan ng boxes */
+}
+
+.db-chart-box { 
+    background: white; 
+    padding: 35px; 
+    border-radius: 15px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+}
+
+.db-chart-box h3 { font-size: 18px; margin-bottom: 30px; }
+
+.canvas-wrapper {
+    position: relative;
+    height: 260px;
+    width: 100%;
+}
+
+.db-user-footer { padding: 25px 30px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; margin-top: auto; }
+.db-avatar { width: 40px; height: 40px; background: #3B82F6; border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+/* ========================================
+   LEARNER PROGRESS SECTION
+========================================
+*/
+.lp-header { display: flex; justify-content: space-between; align-items: center; }
+
+.lp-search-box {
+    background: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+}
+
+.lp-search-box input { border: none; outline: none; margin-left: 10px; font-size: 14px; width: 250px; }
+.lp-search-box i { color: #94A3B8; }
+
+.lp-container {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    margin-bottom: 30px;
+}
+/* Container Fix */
+.lp-card-compact {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 25px; /* Siksik na padding */
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    border: 1px solid #F1F5F9;
+}
+
+/* Detail Grid Layout */
+.lp-detail-grid {
+    display: grid;
+    grid-template-columns: 240px 1fr; /* Fixed width for profile, flexible for table */
+    gap: 30px;
+    align-items: start;
+}
+
+/* Profile Box Styling */
+.lp-profile-box {
+    background: #F8FAFC;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.lp-avatar-circle {
+    width: 60px; height: 60px;
+    background: #3B82F6; color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: bold; margin: 0 auto 10px;
+}
+
+.lp-profile-main h4 { margin: 0; font-size: 16px; color: #1E293B; }
+.lp-profile-main p { font-size: 12px; color: #64748B; margin-bottom: 15px; }
+
+.lp-profile-actions { display: flex; gap: 8px; margin-bottom: 20px; }
+.btn-action { flex: 1; padding: 6px; border: 1px solid #E2E8F0; background: white; border-radius: 6px; font-size: 11px; cursor: pointer; }
+.btn-action.disabled { opacity: 0.3; }
+
+.lp-profile-stats { border-top: 1px solid #E2E8F0; padding-top: 15px; }
+.p-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; color: #64748B; }
+.p-row span { font-weight: bold; color: #1E293B; }
+.text-blue span { color: #3B82F6; }
+
+/* Table Compactness */
+.lp-scores-table { width: 100%; border-collapse: collapse; }
+.lp-scores-table th { font-size: 10px; color: #94A3B8; text-transform: uppercase; padding: 10px; text-align: center; }
+.lp-scores-table td { padding: 12px 10px; border-bottom: 1px solid #F8FAFC; font-size: 13px; text-align: center; }
+.lp-scores-table td:first-child { text-align: left; width: 40%; }
+
+/* Pills */
+.pill { padding: 4px 10px; border-radius: 5px; font-weight: bold; font-size: 11px; }
+.pill.green { background: #DCFCE7; color: #166534; }
+.pill.orange { background: #FEF3C7; color: #92400E; }
+.pill.red { background: #FEE2E2; color: #991B1B; }
+.pill-empty { color: #CBD5E1; }
+
+/* LEARNER PROGRESS GLOBAL STYLES */
+.lp-header-fixed { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.lp-search-wrapper { background: white; border: 1px solid #E2E8F0; padding: 10px 18px; border-radius: 10px; display: flex; align-items: center; width: 320px; }
+.lp-search-wrapper input { border: none; outline: none; margin-left: 12px; width: 100%; font-size: 14px; }
+
+.lp-card-container { background: white; border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+
+/* MAIN TABLE STYLING */
+.lp-main-table { width: 100%; border-collapse: collapse; }
+.lp-main-table th { text-align: left; padding: 15px; font-size: 11px; color: #94A3B8; text-transform: uppercase; border-bottom: 1px solid #F1F5F9; }
+.lp-main-table td { padding: 18px 15px; border-bottom: 1px solid #F8FAFC; }
+
+.lp-user strong { display: block; color: #1E293B; }
+.lp-user span { font-size: 12px; color: #94A3B8; }
+
+.lp-tag { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.lp-tag.blue { background: #EFF6FF; color: #3B82F6; }
+
+.lp-progress-wrapper { display: flex; align-items: center; gap: 10px; width: 180px; }
+.lp-progress-bar { height: 6px; background: #F1F5F9; border-radius: 10px; flex: 1; overflow: hidden; }
+.lp-progress-bar .fill { height: 100%; }
+.lp-progress-bar .fill.blue { background: #3B82F6; }
+
+.lp-status { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+.lp-status.active { background: #DCFCE7; color: #166534; }
+
+/* DETAIL FLEXBOX */
+.detail-title { margin-bottom: 20px; font-size: 18px; color: #1E293B; }
+.lp-detail-flex { display: flex; gap: 40px; }
+
+.lp-profile-info { width: 260px; text-align: center; border-right: 1px solid #F1F5F9; padding-right: 40px; }
+.lp-avatar-circle { width: 70px; height: 70px; background: #3B82F6; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; margin: 0 auto 15px; }
+
+.lp-profile-controls { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
+.btn-outline { padding: 6px 14px; border: 1px solid #E2E8F0; background: white; border-radius: 8px; font-size: 12px; cursor: pointer; }
+.btn-outline.disabled { opacity: 0.4; cursor: not-allowed; }
+
+.lp-mini-stats { text-align: left; margin-top: 20px; }
+.m-stat { display: flex; justify-content: space-between; font-size: 13px; color: #64748B; margin-bottom: 8px; }
+.m-stat span { font-weight: 700; color: #1E293B; }
+.text-primary span { color: #3B82F6; }
+
+.lp-scores-table-container { flex: 1; }
+.lp-scores-table { width: 100%; border-collapse: collapse; }
+.lp-scores-table th { text-align: center; padding: 15px; font-size: 11px; color: #94A3B8; }
+.lp-scores-table td { padding: 15px; text-align: center; font-size: 14px; border-bottom: 1px solid #F8FAFC; }
+.lp-scores-table td:first-child { text-align: left; }
+
+.score-pill { background: #DCFCE7; color: #166534; padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 12px; }
+
+
+/* ========================================
+   COURSE MANAGEMENT - FIXED
+   ======================================== */
+   .cm-module-card {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 20px; /* Increased spacing between modules */
+    overflow: hidden;
+    
+    /* The Shadow Box Effect */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+                0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    
+    /* Subtle border to keep it crisp */
+    border: 1px solid #f1f5f9; 
+    
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Optional: Slight lift effect when hovering over a module */
+.cm-module-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+                0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+/* Container Fix */
+.cm-wrapper {
+    padding: 20px;
+    max-width: 1000px; /* Limits width to match Figma feel */
+    margin: 0 auto;
+}
+
+/* Header */
+.cm-main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+/* Module Card */
+.cm-module-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Module Header - FORCE FLEX */
+.cm-module-header {
+    display: flex; /* Eto ang kulang sa screenshot mo */
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 24px;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.cm-module-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1; /* Sasakupin nito ang space sa gitna */
+}
+
+/* Lesson Area - Gray Background */
+.cm-lesson-area {
+    background: #f8fafc;
+    padding: 10px 24px 20px 60px; /* Indent para sa hierarchy */
+    border-top: 1px solid #f1f5f9;
+}
+
+/* Lesson Item - White Nested Box */
+.cm-lesson-item {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 20px;
+    margin-top: 10px;
+    display: flex; /* Eto rin dapat flex */
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* Action Buttons Group */
+.cm-btn-group {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0; /* Hindi mapipitpit ang buttons */
+}
+
+.cm-btn {
+    background: #1e293b;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Dropdown Logic (Pure CSS) */
+.cm-toggle { display: none; }
+.cm-toggle:checked ~ .cm-lesson-area { display: block; }
+.cm-toggle:checked ~ label .fa-caret-right { transform: rotate(90deg); }
