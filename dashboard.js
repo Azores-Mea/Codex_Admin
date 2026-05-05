@@ -6,7 +6,7 @@ new Chart(ctxBar, {
         labels: ['Bgnr', 'Int', 'Adv'],
         datasets: [{
             data: [65, 45, 30],
-            backgroundColor: ['#3B82F6', '#F59E0B', '#0F172A']
+            backgroundColor: ['#E3AF64', '#4398F2', '#A666F4']
         }]
     },
     options: { 
@@ -24,7 +24,7 @@ new Chart(ctxPie, {
         labels: ['Beginner', 'Intermediate', 'Advanced'],
         datasets: [{
             data: [60, 20, 20],
-            backgroundColor: ['#3B82F6', '#F59E0B', '#0F172A'],
+            backgroundColor: ['#E3AF64', '#4398F2', '#A666F4'],
             borderWidth: 2,
             borderColor: '#FFFFFF'
         }]

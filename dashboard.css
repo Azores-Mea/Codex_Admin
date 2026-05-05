@@ -11,14 +11,14 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body { 
-    font-family: 'Inter', sans-serif; 
-    background-color: var(--bg-light); 
-    display: flex; 
-    min-height: 100vh;
+    display: flex;
+    margin: 0;
+    background-color: #fff;
+    font-family: 'Roboto', sans-serif;
 }
 
 /* ========================================
-   SIDEBAR (Shared across all pages)
+   SIDEBAR
 ========================================
 */
 .db-sidebar {
@@ -26,10 +26,13 @@ body {
     background-color: var(--maastricht-blue);
     color: white;
     height: 100vh;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    z-index: 1050;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 
 .db-logo-section { padding: 40px 30px; }
@@ -56,18 +59,64 @@ body {
     margin-right: 15px;
     width: 20px;
     text-align: center;
-    font-size: 16px; /* Inayos para sa bagong icons */
+    font-size: 16px;
 }
 
-.db-section-header { padding: 25px 30px 10px; font-size: 10px; opacity: 0.3; text-transform: uppercase; }
+.db-section-header { 
+    padding: 25px 30px 10px; 
+    font-size: 10px; 
+    opacity: 0.3; 
+    text-transform: uppercase; 
+}
+
+.db-user-footer { 
+    padding: 25px 30px; 
+    border-top: 1px solid rgba(255,255,255,0.1); 
+    display: flex; 
+    align-items: center; 
+    margin-top: auto;
+    gap: 12px;
+}
+
+.db-avatar { 
+    width: 40px; 
+    height: 40px; 
+    background: #3B82F6; 
+    border-radius: 50%; 
+    margin-right: 15px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: 700; 
+}
+
+.logout-btn { 
+    background: #eab308; 
+    padding: 8px; 
+    border-radius: 6px; 
+    color: #001c30; 
+    margin-left: auto; 
+    cursor: pointer; 
+}
 
 /* ========================================
-   DASHBOARD SECTION
+   MAIN CONTENT
 ========================================
 */
-.db-main { flex: 1; padding: 50px; }
+.db-main { 
+    margin-left: 280px;  /* offset = sidebar width */
+    padding: 50px; 
+    min-height: 100vh;
+}
+
 .db-header { margin-bottom: 40px; }
 
+.db-header h2 { font-size: 32px; font-weight: 700; color: black; }
+.db-header p { font-size: 20px; color: black; margin-top: 8px; }
+/* ========================================
+   DASHBOARD STAT CARDS
+========================================
+*/
 .db-stats-grid { 
     display: grid; 
     grid-template-columns: repeat(4, 1fr); 
@@ -83,18 +132,26 @@ body {
     border-left: 5px solid #CBD5E1;
 }
 
-.db-card.blue { border-left-color: #3B82F6; }
+.db-card.blue  { border-left-color: #3B82F6; }
 .db-card.orange { border-left-color: var(--accent-orange); }
-.db-card.sky { border-left-color: #7DD3FC; }
-.db-card.dark { border-left-color: #0F172A; }
+.db-card.sky   { border-left-color: #7DD3FC; }
+.db-card.dark  { border-left-color: #0F172A; }
 
-.db-card .value { font-size: 26px; font-weight: 800; margin: 10px 0; display: block; }
+.db-card .value { 
+    font-size: 26px; 
+    font-weight: 800; 
+    margin: 10px 0; 
+    display: block; 
+}
 
-/* Chart Alignment Fixes */
+/* ========================================
+   CHARTS
+========================================
+*/
 .db-charts-container { 
     display: grid; 
     grid-template-columns: 1fr 1fr; 
-    gap: 30px; /* Eto ang "line margin" sa pagitan ng boxes */
+    gap: 30px;
 }
 
 .db-chart-box { 
@@ -114,11 +171,8 @@ body {
     width: 100%;
 }
 
-.db-user-footer { padding: 25px 30px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; margin-top: auto; }
-.db-avatar { width: 40px; height: 40px; background: #3B82F6; border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-
 /* ========================================
-   LEARNER PROGRESS SECTION
+   LEARNER PROGRESS
 ========================================
 */
 .lp-header { display: flex; justify-content: space-between; align-items: center; }
@@ -131,7 +185,6 @@ body {
     display: flex;
     align-items: center;
 }
-
 .lp-search-box input { border: none; outline: none; margin-left: 10px; font-size: 14px; width: 250px; }
 .lp-search-box i { color: #94A3B8; }
 
@@ -142,25 +195,23 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.02);
     margin-bottom: 30px;
 }
-/* Container Fix */
+
 .lp-card-compact {
     background: white;
     border-radius: 12px;
-    padding: 20px 25px; /* Siksik na padding */
+    padding: 20px 25px;
     margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     border: 1px solid #F1F5F9;
 }
 
-/* Detail Grid Layout */
 .lp-detail-grid {
     display: grid;
-    grid-template-columns: 240px 1fr; /* Fixed width for profile, flexible for table */
+    grid-template-columns: 240px 1fr;
     gap: 30px;
     align-items: start;
 }
 
-/* Profile Box Styling */
 .lp-profile-box {
     background: #F8FAFC;
     border-radius: 10px;
@@ -176,7 +227,7 @@ body {
 }
 
 .lp-profile-main h4 { margin: 0; font-size: 16px; color: #1E293B; }
-.lp-profile-main p { font-size: 12px; color: #64748B; margin-bottom: 15px; }
+.lp-profile-main p  { font-size: 12px; color: #64748B; margin-bottom: 15px; }
 
 .lp-profile-actions { display: flex; gap: 8px; margin-bottom: 20px; }
 .btn-action { flex: 1; padding: 6px; border: 1px solid #E2E8F0; background: white; border-radius: 6px; font-size: 11px; cursor: pointer; }
@@ -187,33 +238,29 @@ body {
 .p-row span { font-weight: bold; color: #1E293B; }
 .text-blue span { color: #3B82F6; }
 
-/* Table Compactness */
 .lp-scores-table { width: 100%; border-collapse: collapse; }
 .lp-scores-table th { font-size: 10px; color: #94A3B8; text-transform: uppercase; padding: 10px; text-align: center; }
 .lp-scores-table td { padding: 12px 10px; border-bottom: 1px solid #F8FAFC; font-size: 13px; text-align: center; }
 .lp-scores-table td:first-child { text-align: left; width: 40%; }
 
-/* Pills */
 .pill { padding: 4px 10px; border-radius: 5px; font-weight: bold; font-size: 11px; }
-.pill.green { background: #DCFCE7; color: #166534; }
+.pill.green  { background: #DCFCE7; color: #166534; }
 .pill.orange { background: #FEF3C7; color: #92400E; }
-.pill.red { background: #FEE2E2; color: #991B1B; }
-.pill-empty { color: #CBD5E1; }
+.pill.red    { background: #FEE2E2; color: #991B1B; }
+.pill-empty  { color: #CBD5E1; }
 
-/* LEARNER PROGRESS GLOBAL STYLES */
 .lp-header-fixed { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
 .lp-search-wrapper { background: white; border: 1px solid #E2E8F0; padding: 10px 18px; border-radius: 10px; display: flex; align-items: center; width: 320px; }
 .lp-search-wrapper input { border: none; outline: none; margin-left: 12px; width: 100%; font-size: 14px; }
 
 .lp-card-container { background: white; border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
 
-/* MAIN TABLE STYLING */
 .lp-main-table { width: 100%; border-collapse: collapse; }
 .lp-main-table th { text-align: left; padding: 15px; font-size: 11px; color: #94A3B8; text-transform: uppercase; border-bottom: 1px solid #F1F5F9; }
 .lp-main-table td { padding: 18px 15px; border-bottom: 1px solid #F8FAFC; }
 
 .lp-user strong { display: block; color: #1E293B; }
-.lp-user span { font-size: 12px; color: #94A3B8; }
+.lp-user span   { font-size: 12px; color: #94A3B8; }
 
 .lp-tag { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 .lp-tag.blue { background: #EFF6FF; color: #3B82F6; }
@@ -226,12 +273,10 @@ body {
 .lp-status { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
 .lp-status.active { background: #DCFCE7; color: #166534; }
 
-/* DETAIL FLEXBOX */
 .detail-title { margin-bottom: 20px; font-size: 18px; color: #1E293B; }
 .lp-detail-flex { display: flex; gap: 40px; }
 
 .lp-profile-info { width: 260px; text-align: center; border-right: 1px solid #F1F5F9; padding-right: 40px; }
-.lp-avatar-circle { width: 70px; height: 70px; background: #3B82F6; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; margin: 0 auto 15px; }
 
 .lp-profile-controls { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
 .btn-outline { padding: 6px 14px; border: 1px solid #E2E8F0; background: white; border-radius: 8px; font-size: 12px; cursor: pointer; }
@@ -243,48 +288,34 @@ body {
 .text-primary span { color: #3B82F6; }
 
 .lp-scores-table-container { flex: 1; }
-.lp-scores-table { width: 100%; border-collapse: collapse; }
-.lp-scores-table th { text-align: center; padding: 15px; font-size: 11px; color: #94A3B8; }
-.lp-scores-table td { padding: 15px; text-align: center; font-size: 14px; border-bottom: 1px solid #F8FAFC; }
-.lp-scores-table td:first-child { text-align: left; }
-
 .score-pill { background: #DCFCE7; color: #166534; padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 12px; }
 
-
 /* ========================================
-   COURSE MANAGEMENT - FIXED
-   ======================================== */
-   .cm-module-card {
+   COURSE MANAGEMENT
+======================================== */
+.cm-module-card {
     background: white;
     border-radius: 12px;
-    margin-bottom: 20px; /* Increased spacing between modules */
+    margin-bottom: 20px;
     overflow: hidden;
-    
-    /* The Shadow Box Effect */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
-                0 2px 4px -2px rgba(0, 0, 0, 0.05);
-    
-    /* Subtle border to keep it crisp */
-    border: 1px solid #f1f5f9; 
-    
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.05);
+    border: 1px solid #f1f5f9;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Optional: Slight lift effect when hovering over a module */
 .cm-module-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
-                0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.05);
 }
 
-/* Container Fix */
 .cm-wrapper {
     padding: 20px;
-    max-width: 1000px; /* Limits width to match Figma feel */
+    max-width: 1000px;
     margin: 0 auto;
 }
 
-/* Header */
 .cm-main-header {
     display: flex;
     justify-content: space-between;
@@ -292,20 +323,8 @@ body {
     margin-bottom: 25px;
 }
 
-/* Module Card */
-.cm-module-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    margin-bottom: 16px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Module Header - FORCE FLEX */
 .cm-module-header {
-    display: flex; /* Eto ang kulang sa screenshot mo */
+    display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 18px 24px;
@@ -318,35 +337,32 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    flex: 1; /* Sasakupin nito ang space sa gitna */
+    flex: 1;
 }
 
-/* Lesson Area - Gray Background */
 .cm-lesson-area {
     background: #f8fafc;
-    padding: 10px 24px 20px 60px; /* Indent para sa hierarchy */
+    padding: 10px 24px 20px 60px;
     border-top: 1px solid #f1f5f9;
 }
 
-/* Lesson Item - White Nested Box */
 .cm-lesson-item {
     background: #fff;
     border: 1px solid #e2e8f0;
     border-radius: 10px;
     padding: 12px 20px;
     margin-top: 10px;
-    display: flex; /* Eto rin dapat flex */
+    display: flex;
     justify-content: space-between;
     align-items: center;
     box-sizing: border-box;
     width: 100%;
 }
 
-/* Action Buttons Group */
 .cm-btn-group {
     display: flex;
     gap: 8px;
-    flex-shrink: 0; /* Hindi mapipitpit ang buttons */
+    flex-shrink: 0;
 }
 
 .cm-btn {
@@ -360,7 +376,64 @@ body {
     cursor: pointer;
 }
 
-/* Dropdown Logic (Pure CSS) */
 .cm-toggle { display: none; }
 .cm-toggle:checked ~ .cm-lesson-area { display: block; }
 .cm-toggle:checked ~ label .fa-caret-right { transform: rotate(90deg); }
+
+/* Sidebar — always visible, never hides */
+.db-sidebar {
+    width: 280px;
+    background-color: var(--maastricht-blue);
+    color: white;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;           /* always 0, never -280px */
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* Main content always offset */
+.db-main {
+    margin-left: 280px;
+    padding: 50px;
+    min-height: 100vh;
+}
+
+/* Remove all hamburger / overlay / slide-in logic */
+.sidebar-toggle  { display: none !important; }
+.sidebar-overlay { display: none !important; }
+
+@media (max-width: 900px) {
+    /* Sidebar stays — just shrink main padding */
+    .db-main {
+        margin-left: 280px;
+        padding: 30px 20px;
+    }
+
+    .db-stats-grid       { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .db-charts-container { grid-template-columns: 1fr; }
+
+    .lp-card-compact,
+    .lp-card-container   { overflow-x: auto; }
+    .lp-detail-grid      { grid-template-columns: 1fr; }
+
+    .cm-lesson-item      { flex-wrap: wrap; gap: 10px; }
+    .cm-actions          { width: 100%; justify-content: flex-end; }
+}
+
+@media (max-width: 560px) {
+    .db-stats-grid { grid-template-columns: 1fr; }
+
+    .cm-page-header,
+    .lp-header-fixed,
+    .ct-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+
+    .lp-search-wrapper { width: 100%; }
+    .cm-module-header  { padding: 14px 16px; }
+    .cm-lesson-list    { padding: 16px; }
+    .cm-lesson-item    { margin-left: 0; }
+    .modal-box         { width: 90vw; padding: 30px 20px; }
+}

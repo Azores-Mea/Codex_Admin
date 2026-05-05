@@ -5,171 +5,506 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CODEX | Content Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <script>
+        firebase.initializeApp({
+            apiKey: "AIzaSyBmFwQe51Sfkhr36aXXlw4NYv7jag-8OcY",
+            authDomain: "codex-f1355.firebaseapp.com",
+            databaseURL: "https://codex-f1355-default-rtdb.firebaseio.com",
+            projectId: "codex-f1355",
+            storageBucket: "codex-f1355.firebasestorage.app",
+            messagingSenderId: "273276166035",
+            appId: "1:273276166035:web:e1f895eeaa03200a975266"
+        });
+    </script>
+
     <style>
-        /* BASE LAYOUT */
-        body { display: flex; margin: 0; background-color: #f8fafc; font-family: 'Inter', sans-serif; }
-        
-        /* SIDEBAR STYLES */
-        .db-sidebar { width: 260px; background-color: #001f3f; color: white; height: 100vh; display: flex; flex-direction: column; position: sticky; top: 0; }
-        .db-logo-section { padding: 30px 25px; }
-        .db-logo-section h1 { margin: 0; font-size: 22px; letter-spacing: 1px; }
-        .db-logo-section h1 span { color: #f39c12; }
-        .db-logo-section p { margin: 0; font-size: 12px; color: #94a3b8; }
-        .db-nav-list { flex-grow: 1; padding: 20px 0; }
-        .db-nav-item { padding: 12px 25px; display: flex; align-items: center; transition: 0.2s; }
-        .db-nav-item a { color: #94a3b8; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 12px; width: 100%; }
-        .db-nav-item:hover { background: rgba(255,255,255,0.05); }
-        .db-nav-item.active { background: #1e293b; border-left: 4px solid #f39c12; }
-        .db-nav-item.active a { color: white; font-weight: 600; }
-        .db-section-header { padding: 20px 25px 10px; font-size: 11px; text-transform: uppercase; color: #475569; letter-spacing: 1px; }
-        .db-user-footer { padding: 20px 25px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; }
-        .db-avatar { width: 35px; height: 35px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; }
-
-        /* MAIN CONTENT AREA */
-        .db-main { flex-grow: 1; padding: 40px; box-sizing: border-box; overflow-y: auto; height: 100vh; }
-        .ct-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .ct-title h2 { margin: 0; font-size: 24px; color: #1e293b; }
-        .ct-title p { margin: 5px 0 0; color: #94a3b8; font-size: 14px; }
-        .ct-controls { display: flex; gap: 12px; }
-        .ct-select { padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; }
-        .btn-add { background: #1e293b; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-
-        /* SECTION BOXES (Shadow Effect) */
-        .ct-section { 
-            background: white; border-radius: 12px; padding: 24px; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
-            margin-bottom: 24px; border: 1px solid #f1f5f9;
+        body {
+            display: flex;
+            margin: 0;
+            background-color: #fff;
+            font-family: 'Roboto', sans-serif;
         }
-        .lesson-label { font-size: 16px; font-weight: 700; color: #334155; margin-bottom: 20px; }
 
-        /* CARDS */
-        .as-card { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border: 1px solid #f1f5f9; border-radius: 12px; margin-bottom: 12px; }
-        .as-info { display: flex; align-items: center; gap: 16px; flex-grow: 1; }
-        .as-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; }
-        
-        .ic-q  { background: #eff6ff; color: #3b82f6; } /* Blue */
-        .ic-pt { background: #f0fdf4; color: #22c55e; } /* Green */
-        .ic-se { background: #fff7ed; color: #f59e0b; } /* Orange */
-        .ic-mp { background: #fef2f2; color: #ef4444; } /* Red */
+        .db-main {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            height: 100vh;
+            box-sizing: border-box;
+        }
 
-        .as-details h4 { margin: 0; font-size: 14px; color: #1e293b; }
-        .as-details p { margin: 2px 0 0; font-size: 12px; color: #94a3b8; }
-        .as-status { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; margin-left: 15px; }
-        .st-active { background: #f0fdf4; color: #22c55e; }
-        .st-optional { background: #fff7ed; color: #f59e0b; }
+        /* ── DROPDOWN LOGIC ── */
+        .cm-checkbox { display: none; }
+        .cm-checkbox:checked ~ .cm-lesson-list { display: block !important; }
+        .cm-checkbox:checked ~ .cm-dropdown-label .caret-icon { transform: rotate(90deg); }
 
-        .as-actions { display: flex; gap: 8px; }
-        .btn-act { background: #1e293b; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        /* ── PAGE HEADER ── */
+        .cm-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .cm-page-header h2 { margin: 0; font-size: 32px; color: black; }
+        .cm-page-header p  { margin: 5px 0 0; color: black; font-size: 20px; }
 
-        /* TABLE */
-        .hint-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .hint-table th { text-align: left; font-size: 11px; color: #94a3b8; padding: 12px; border-bottom: 1px solid #f1f5f9; text-transform: uppercase; }
-        .hint-table td { padding: 15px 12px; font-size: 13px; border-bottom: 1px solid #f8fafc; color: #475569; }
-        .trigger-badge { background: #fff7ed; color: #f59e0b; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
-        .btn-edit-text { background: none; border: none; color: #cbd5e1; cursor: pointer; font-weight: 600; font-size: 12px; }
+        /* ── BUTTONS ── */
+        .btn-cm {
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-cm.dark { background: #1e293b; color: white; }
+        .btn-cm.dark:hover { background: #0f172a; }
+
+        /* ── MODULE CARD ── */
+        .cm-module-card {
+            background: white;
+            border: 1px solid #f1f5f9;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        }
+
+        .cm-module-header {
+            display: flex;
+            align-items: center;
+            padding: 20px 25px;
+            cursor: pointer;
+        }
+
+        .cm-module-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-grow: 1;
+        }
+
+        /* Difficulty badges */
+        .cm-badge          { padding: 2px 12px; border-radius: 20px; font-size: 14px; font-weight: 700; }
+        .cm-badge.blue     { border: 1px solid #E3AF64; color: #E3AF64; }
+        .cm-badge.orange   { border: 1px solid #66ABF4; color: #66ABF4; }
+        .cm-badge.purple   { border: 1px solid #A666F4; color: #A666F4; }
+
+        .cm-lesson-list {
+            display: none;
+            background-color: #f8fafc;
+            border-top: 1px solid #f1f5f9;
+            padding: 25px;
+        }
+
+        .cm-lesson-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            border: 1px solid #f1f5f9;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* ── Assessment chips below title ── */
+        .cm-assess-list {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            margin-top: 5px;
+        }
+        .cm-assess-list .a-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        .cm-no-assess {
+            font-size: 11px;
+            color: #cbd5e1;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .caret-icon { transition: transform 0.2s ease; color: #94a3b8; }
+        .cm-dropdown-label { cursor: pointer; display: block; width: 100%; }
+
+        /* Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 6px;
+            height: 14px;
+        }
+        @keyframes shimmer { to { background-position: -200% 0; } }
+        .skeleton-lesson {
+            height: 62px;
+            border-radius: 10px;
+            margin-left: 45px;
+            margin-bottom: 10px;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-left: 45px;
+        }
+        .empty-state i { display: block; font-size: 26px; margin-bottom: 8px; }
+
+        /* ── MODAL — white card style matching screenshot ── */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,.55);
+            display: none; align-items: center; justify-content: center;
+            z-index: 9999; backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: #001C30;
+            padding: 48px 40px 36px;
+            border-radius: 24px;
+            width: 420px;
+            text-align: center;
+            box-shadow: 0 24px 64px rgba(0,0,0,.4);
+        }
+        .modal-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 28px;
+            line-height: 1.4;
+        }
+
+        /* White pill buttons matching the screenshot */
+        .assess-btn {
+            display: block;
+            width: 100%;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+            background: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #3b82f6;
+            transition: all .15s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+        }
+        .assess-btn:hover  { background: #001C30; transform: scale(1.02); border: 2px solid #3b82f6; color: white; }
+        .assess-btn:active { transform: scale(.98); }
+
+        .cancel-link {
+            color: #94A3B8;
+            cursor: pointer;
+            margin-top: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .cancel-link:hover { color: white; }
     </style>
 </head>
 <body>
 
-    <aside class="db-sidebar">
-        <div class="db-logo-section">
-            <h1>CODE<span>X</span></h1>
-            <p>SME PORTAL</p>
+<!-- ══ ASSESSMENT TYPE MODAL ══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="assessModal">
+    <div class="modal-box">
+        <h2 class="modal-title">Select the type of assessment to modify:</h2>
+        <button class="assess-btn" onclick="selectAssessment('Quiz')">Quiz</button>
+        <button class="assess-btn" onclick="selectAssessment('Coding Exercise')">Coding Exercise</button>
+        <p class="cancel-link" onclick="closeModal()">Cancel</p>
+    </div>
+</div>
+
+<!-- ══ SIDEBAR ════════════════════════════════════════════════════════════ -->
+<?php
+    $activePage = 'content_management';
+    include 'sidebar.php';
+?>
+
+<!-- ══ MAIN ════════════════════════════════════════════════════════════════ -->
+<main class="db-main">
+    <header class="cm-page-header">
+        <div>
+            <h2>Content management</h2>
+            <p>Manage assessment bank per lesson</p>
         </div>
-        
-        <nav class="db-nav-list">
-            <div class="db-nav-item"><a href="dashboard.php"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a></div>
-            <div class="db-nav-item"><a href="learner_progress.php"><i class="fa-solid fa-user-group"></i> Learner progress</a></div>
-            <div class="db-section-header">Content</div>
-            <div class="db-nav-item"><a href="course_management.php"><i class="fa-solid fa-bars-staggered"></i> Course management</a></div>
-            <div class="db-nav-item active"><a href="content_management.php"><i class="fa-solid fa-bookmark"></i> Content management</a></div>
-            <div class="db-section-header">System</div>
-            <div class="db-nav-item"><a href="#"><i class="fa-solid fa-circle-dot"></i> Admin</a></div>
-        </nav>
+    </header>
 
-        <div class="db-user-footer">
-            <div class="db-avatar">MJ</div>
-            <div class="db-user-info">
-                <p style="margin:0; font-size:13px; font-weight:600;">Ma'am Joms</p>
-                <p style="margin:0; font-size:11px; color:#94a3b8;">SME Portal</p>
-            </div>
+    <div class="cm-container" id="modulesContainer">
+        <!-- Rendered by JS -->
+    </div>
+</main>
+
+<!-- ══ JAVASCRIPT ══════════════════════════════════════════════════════════ -->
+<script>
+/* ── Active lesson context for modal ───────────────────────────────────── */
+let _activeLessonId = null;
+
+function openAssessModal(lessonId) {
+    _activeLessonId = lessonId;
+    document.getElementById('assessModal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('assessModal').classList.remove('active');
+    _activeLessonId = null;
+}
+function selectAssessment(type) {
+    if (!_activeLessonId) { closeModal(); return; }
+    if (type === 'Coding Exercise') {
+        window.location.href = `add_coding_exercise_form.php?lesson=${encodeURIComponent(_activeLessonId)}`;
+    } else {
+        window.location.href = `add_assessment_form.php?lesson=${encodeURIComponent(_activeLessonId)}&type=${encodeURIComponent(type)}`;
+    }
+    closeModal();
+}
+
+/* ── Module config ──────────────────────────────────────────────────────── */
+const MODULES = [
+    { num: 1, level: 'Beginner',     badgeClass: 'blue',   icon: 'fa-seedling',  color: '#3b82f6' },
+    { num: 2, level: 'Intermediate', badgeClass: 'orange', icon: 'fa-bolt',      color: '#f97316' },
+    { num: 3, level: 'Advanced',     badgeClass: 'purple', icon: 'fa-fire',      color: '#a855f7' },
+];
+
+function skeletonHTML() {
+    return `
+        <div class="skeleton skeleton-lesson"></div>
+        <div class="skeleton skeleton-lesson" style="opacity:.6;"></div>
+    `;
+}
+
+function stripHTML(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html || '';
+    return tmp.textContent || tmp.innerText || '';
+}
+
+function contentSummary(lesson) {
+    const parts = [];
+    const content = lesson.content || {};
+    let hasImg = false, hasCode = false, hasText = false;
+
+    Object.values(content).forEach(block => {
+        const check = (obj) => {
+            if (!obj) return;
+            ['helper1Drawable','helper2Drawable','helper3Drawable',
+             'helper4Drawable','helper5Drawable','helper6Drawable','helper7Drawable'].forEach(k => {
+                if (obj[k] && obj[k].trim()) hasImg = true;
+            });
+            ['helper1Code','helper2Code','helper3Code',
+             'helper4Code','helper5Code','helper6Code','helper7Code'].forEach(k => {
+                if (obj[k] && obj[k].trim()) hasCode = true;
+            });
+            if (obj.description || obj.title || obj.exampleDescription) hasText = true;
+        };
+        if (block.TITLE) check(block.TITLE);
+        if (block.EXAMPLE?.TYPES) check(block.EXAMPLE.TYPES);
+        if (block.SUBTITLE?.OUTPUT) check(block.SUBTITLE.OUTPUT);
+    });
+
+    if (hasText)  parts.push('Text');
+    if (hasImg)   parts.push('Images');
+    if (hasCode)  parts.push('Code snippets');
+    return parts.length ? parts.join(' · ') : 'No content';
+}
+
+/* ── Build assessment chips ─────────────────────────────────────────────── */
+/*  assessTypes = object { Quiz:{...}, ProgramTracing:{...} }  from assessment/{lessonId}
+    codingItems = array of exercise objects                    from coding_exercises/{lessonId}
+
+    Display rules:
+      - Finding Syntax Error  → chip "Finding Syntax Error (n)" where n = question count
+      - Program Tracing       → chip "Program Tracing (n)"
+      - Machine Problem       → chip "Machine Problem"  (no count)
+      - Quiz                  → chip "Quiz"             (no count)
+      - Coding exercises      → one chip per exercise showing the TYPE label "Coding Exercise",
+                                NOT the exercise title
+    Order: Finding Syntax Error · Program Tracing · Machine Problem · Quiz · Coding Exercise
+*/
+function buildAssessmentTags(assessTypes, codingItems) {
+    const chips = [];
+
+    const ORDER  = ['FindingSyntaxError', 'ProgramTracing', 'MachineProblem', 'Quiz'];
+    const LABELS = {
+        'FindingSyntaxError': 'Finding Syntax Error',
+        'ProgramTracing':     'Program Tracing',
+        'MachineProblem':     'Machine Problem',
+        'Quiz':               'Quiz',
+    };
+    const SHOW_COUNT = new Set(['FindingSyntaxError', 'ProgramTracing']);
+
+    if (assessTypes) {
+        ORDER.forEach(type => {
+            if (!assessTypes[type]) return;
+            const questions = assessTypes[type];
+            const label     = LABELS[type] || type;
+            if (SHOW_COUNT.has(type) && typeof questions === 'object') {
+                const total = Object.keys(questions).length;
+                chips.push(`<span class="a-chip">${label} (${total})</span>`);
+            } else {
+                chips.push(`<span class="a-chip">${label}</span>`);
+            }
+        });
+    }
+
+    /* Coding exercises — show "Coding Exercise" type label, not individual titles */
+    if (Array.isArray(codingItems)) {
+        const validExercises = codingItems.filter(ex => ex != null);
+        if (validExercises.length > 0) {
+            chips.push(`<span class="a-chip">Coding Exercise</span>`);
+        }
+    }
+
+    if (chips.length === 0) return `<p class="cm-no-assess">No assessments yet</p>`;
+    return `<div class="cm-assess-list">${chips.join('')}</div>`;
+}
+
+/* ── Build lesson item row ──────────────────────────────────────────────── */
+function buildLessonItem(lessonId, lesson, assessTypes, codingItems, index) {
+    const title      = stripHTML(lesson.main_title) || lessonId;
+    const assessTags = buildAssessmentTags(assessTypes, codingItems);
+
+    return `
+    <div class="cm-lesson-item" id="lessonRow_${lessonId}">
+        <div class="cm-lesson-info" style="flex:1;">
+            <h4 style="margin:0;font-size:20px;">${index}. ${title}</h4>
+            ${assessTags}
         </div>
-    </aside>
+        <div class="cm-actions" style="display:flex;gap:8px;margin-left:16px;font-size:10px;">
+            <button class="btn-cm dark"
+                onclick="openAssessModal('${lessonId}')">
+                Modify assessment
+            </button>
+        </div>
+    </div>`;
+}
 
-    <main class="db-main">
-        <header class="ct-header">
-            <div class="ct-title">
-                <h2>Content management</h2>
-                <p>Manage assessment bank per lesson</p>
-            </div>
-            <div class="ct-controls">
-                <select class="ct-select"><option>All modules</option></select>
-                <button class="btn-add">+ Add question</button>
-            </div>
-        </header>
+/* ── Build module card ──────────────────────────────────────────────────── */
+function buildModuleCard(mod, lessons) {
+    const checkId = `mod${mod.num}`;
+    const count   = lessons.length;
 
-        <section class="ct-section">
-            <div class="lesson-label">Lesson: Variables & Data Types</div>
-            
-            <div class="as-card">
-                <div class="as-info">
-                    <div class="as-icon ic-q">Q</div>
-                    <div class="as-details"><h4>Quiz</h4><p>12 questions • Auto-graded</p></div>
-                    <span class="as-status st-active">Active</span>
+    const lessonRows = count === 0
+        ? `<div class="empty-state"><i class="fa-solid fa-inbox"></i>No lessons yet for this level.</div>`
+        : lessons.map((item, i) =>
+            buildLessonItem(item.id, item.lesson, item.assessTypes, item.codingItems, i + 1)
+          ).join('');
+
+    return `
+    <div class="cm-module-card">
+        <input type="checkbox" id="${checkId}" class="cm-checkbox">
+        <label for="${checkId}" class="cm-dropdown-label">
+            <div class="cm-module-header">
+                <div class="cm-module-info">
+                    <i class="fa-solid fa-caret-right caret-icon"></i>
+                    <h3 style="margin:0;font-size:24px;color:#1e293b;">
+                        Module ${mod.num} — ${mod.level}
+                    </h3>
+                    <span class="cm-badge ${mod.badgeClass}">${count} lesson${count !== 1 ? 's' : ''}</span>
                 </div>
-                <div class="as-actions"><button class="btn-act">Edit</button><button class="btn-act">Archive</button></div>
             </div>
+        </label>
+        <div class="cm-lesson-list" id="lessonList_${mod.num}">
+            ${lessonRows}
+        </div>
+    </div>`;
+}
 
-            <div class="as-card">
-                <div class="as-info">
-                    <div class="as-icon ic-pt">PT</div>
-                    <div class="as-details"><h4>Program tracing</h4><p>5 questions • Auto-graded</p></div>
-                    <span class="as-status st-active">Active</span>
+/* ── Skeleton while loading ─────────────────────────────────────────────── */
+function renderSkeletons() {
+    const container = document.getElementById('modulesContainer');
+    container.innerHTML = MODULES.map(mod => `
+        <div class="cm-module-card">
+            <input type="checkbox" id="mod${mod.num}_sk" class="cm-checkbox">
+            <label for="mod${mod.num}_sk" class="cm-dropdown-label">
+                <div class="cm-module-header">
+                    <div class="cm-module-info">
+                        <i class="fa-solid fa-caret-right caret-icon"></i>
+                        <h3 style="margin:0;font-size:20px;color:#1e293b;">Module ${mod.num} — ${mod.level}</h3>
+                        <span class="cm-badge ${mod.badgeClass}">Loading…</span>
+                    </div>
                 </div>
-                <div class="as-actions"><button class="btn-act">Edit</button><button class="btn-act">Archive</button></div>
+            </label>
+            <div class="cm-lesson-list" style="display:block;">
+                ${skeletonHTML()}
             </div>
+        </div>`).join('');
+}
 
-            <div class="as-card">
-                <div class="as-info">
-                    <div class="as-icon ic-se">SE</div>
-                    <div class="as-details"><h4>Syntax error finding</h4><p>4 questions • Auto-graded</p></div>
-                    <span class="as-status st-active">Active</span>
-                </div>
-                <div class="as-actions"><button class="btn-act">Edit</button><button class="btn-act">Archive</button></div>
-            </div>
+/* ── Fetch lessons + assessments from Firebase and render ───────────────── */
+async function loadModules() {
+    renderSkeletons();
 
-            <div class="as-card">
-                <div class="as-info">
-                    <div class="as-icon ic-mp">MP</div>
-                    <div class="as-details"><h4>Machine problem</h4><p>1 problem • Piston sandbox grading</p></div>
-                    <span class="as-status st-optional">Optional</span>
-                </div>
-                <div class="as-actions"><button class="btn-act">Edit</button><button class="btn-act">Archive</button></div>
-            </div>
-        </section>
+    try {
+        const db = firebase.database();
 
-        <section class="ct-section">
-            <div class="lesson-label">Hint configuration</div>
-            <table class="hint-table">
-                <thead>
-                    <tr><th>ASSESSMENT</th><th>TRIGGER</th><th>HINT MESSAGE</th><th style="text-align:right">ACTION</th></tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Quiz Q3</td>
-                        <td><span class="trigger-badge">On fail</span></td>
-                        <td>Remember that int holds whole numbers only...</td>
-                        <td style="text-align:right"><button class="btn-edit-text">Edit</button></td>
-                    </tr>
-                    <tr>
-                        <td>Program tracing PT2</td>
-                        <td><span class="trigger-badge">On fail</span></td>
-                        <td>Trace line by line, check variable scope...</td>
-                        <td style="text-align:right"><button class="btn-edit-text">Edit</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-    </main>
+        /* Fetch all three refs in parallel */
+        const [lessonSnap, assessSnap, codingSnap] = await Promise.all([
+            db.ref('Lessons').once('value'),
+            db.ref('assessment').once('value'),          // assessment/{lessonId}/{type}/{questionId}
+            db.ref('coding_exercises').once('value'),    // coding_exercises/{lessonId}  (array)
+        ]);
+
+        const lessonsData  = lessonSnap.val()  || {};
+        const assessData   = assessSnap.val()  || {};   // { L1: { Quiz:{...} }, L4: { Quiz:{...}, ProgramTracing:{...} } }
+        const codingData   = codingSnap.val()  || {};   // { L2: [ null, {...}, {...} ] }
+
+        const buckets = { Beginner: [], Intermediate: [], Advanced: [] };
+
+        Object.entries(lessonsData).forEach(([id, lesson]) => {
+            const diff = lesson.difficulty || '';
+            const key  = diff.charAt(0).toUpperCase() + diff.slice(1).toLowerCase();
+            if (buckets[key] !== undefined) {
+                const assessTypes = assessData[id]  || null;   // e.g. { Quiz:{...}, ProgramTracing:{...} }
+                const codingItems = codingData[id]  || null;   // e.g. [ null, {title:'...', ...} ]
+                buckets[key].push({ id, lesson, assessTypes, codingItems });
+            }
+        });
+
+        Object.keys(buckets).forEach(k => {
+            buckets[k].sort((a, b) => {
+                const numA = parseInt(a.id.replace(/\D/g, ''), 10) || 0;
+                const numB = parseInt(b.id.replace(/\D/g, ''), 10) || 0;
+                return numA - numB;
+            });
+        });
+
+        const container = document.getElementById('modulesContainer');
+        container.innerHTML = MODULES.map(mod =>
+            buildModuleCard(mod, buckets[mod.level])
+        ).join('');
+
+    } catch (e) {
+        document.getElementById('modulesContainer').innerHTML =
+            `<p style="color:#ef4444;padding:20px;">Error loading lessons: ${e.message}</p>`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadModules);
+</script>
 </body>
 </html>
