@@ -123,10 +123,16 @@ async function loadDashboard() {
     renderDashboard(data[0], data[1], data[2], data[3], data[4]);
 }
 
-firebase.auth().onAuthStateChanged(function(user) {
-    if (!user) { window.location.href = 'login.php'; return; }
+if (typeof window.navigate === 'function') {
+    // Running inside SPA shell — just load
     loadDashboard();
-});
+} else {
+    // Accessed directly — check auth ourselves
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) { window.location.href = 'login.php'; return; }
+        loadDashboard();
+    });
+}
 
 function renderDashboard(Users, quizResults, unlocked, Lessons, exerciseResults) {
     Users           = Users           || {};

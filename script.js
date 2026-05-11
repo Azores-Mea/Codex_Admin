@@ -338,7 +338,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
             setSuccess(emailGroup, 'SME account found!');
             setSuccess(passGroup, 'Password matched!');
             // Popup stays visible during redirect
-            window.location.href = 'dashboard.php';
+            window.location.href = 'index.php';
         } else {
             await firebase.auth().signOut();
             hidePopup();
