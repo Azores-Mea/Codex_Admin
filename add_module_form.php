@@ -1176,12 +1176,6 @@ function validateForm() {
     const blocks = document.querySelectorAll('.content-block');
     if (!blocks.length)
         errors.push('At least one content block is required.');
-    blocks.forEach(b => {
-        const blockId  = b.id.replace('block_', '');
-        const pfxTitle = 'cb_' + blockId + '_TITLE';
-        if (!fieldVal(pfxTitle + '_title'))
-            errors.push(`Content block ${blockId}: Title text is required.`);
-    });
     return errors;
 }
 
