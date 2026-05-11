@@ -24,23 +24,9 @@
             appId: "1:273276166035:web:e1f895eeaa03200a975266"
         });
     </script>
+    <script src="firebase-cache.js"></script>
 
     <style>
-        body {
-            display: flex;
-            margin: 0;
-            background-color: #fff;
-            font-family: 'Roboto', sans-serif;
-        }
-
-        .db-main {
-            flex-grow: 1;
-            padding: 40px;
-            overflow-y: auto;
-            height: 100vh;
-            box-sizing: border-box;
-        }
-
         /* DROPDOWN LOGIC */
         .cm-checkbox { display: none; }
         .cm-checkbox:checked ~ .cm-lesson-list { display: block !important; }
@@ -68,7 +54,6 @@
         .btn-cm.dark  { background: #1e293b; color: white; }
         .btn-cm.dark:hover { background: #0f172a; }
 
-        /* archive variant – red outline */
         .btn-cm.archive-btn {
             background: none;
             border: 1px solid #fca5a5;
@@ -99,7 +84,6 @@
             flex-grow: 1;
         }
 
-        /* Difficulty badges */
         .cm-badge          { padding: 2px 12px; border-radius: 20px; font-size: 14px; font-weight: 700; }
         .cm-badge.blue     { border: 1px solid #E3AF64; color: #E3AF64; }
         .cm-badge.orange   { border: 1px solid #66ABF4; color: #66ABF4; }
@@ -130,7 +114,6 @@
         .caret-icon { transition: transform 0.2s ease; color: #94a3b8; }
         .cm-dropdown-label { cursor: pointer; display: block; width: 100%; }
 
-        /* Skeleton / loading state */
         .skeleton {
             background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
             background-size: 200% 100%;
@@ -147,7 +130,6 @@
             margin-bottom: 10px;
         }
 
-        /* Empty state */
         .empty-state {
             text-align: center;
             padding: 30px;
@@ -190,19 +172,13 @@
     <div class="modal-box">
         <h2 class="modal-title">Select which module to add on:</h2>
         <div class="modal-options">
-            <a href="add_module_form.php?level=Beginner"     class="difficulty-btn beginner">Beginner</a>
-            <a href="add_module_form.php?level=Intermediate" class="difficulty-btn intermediate">Intermediate</a>
-            <a href="add_module_form.php?level=Advanced"     class="difficulty-btn advanced">Advanced</a>
+            <button class="difficulty-btn beginner"     onclick="CM_navigateToAddModule('Beginner')">Beginner</button>
+            <button class="difficulty-btn intermediate" onclick="CM_navigateToAddModule('Intermediate')">Intermediate</button>
+            <button class="difficulty-btn advanced"     onclick="CM_navigateToAddModule('Advanced')">Advanced</button>
         </div>
-        <p onclick="toggleModal()" style="color:#94A3B8;cursor:pointer;margin-top:20px;font-size:14px;">Cancel</p>
+        <p onclick="CM_toggleModal()" style="color:#94A3B8;cursor:pointer;margin-top:20px;font-size:14px;">Cancel</p>
     </div>
 </div>
-
-<!-- ══ SIDEBAR ════════════════════════════════════════════════════════════ -->
-<?php
-    $activePage = 'course_management'; // highlights that nav item
-    include 'sidebar.php';
-?>
 
 <!-- ══ MAIN ════════════════════════════════════════════════════════════════ -->
 <main class="db-main">
@@ -211,16 +187,18 @@
             <h2>Course management</h2>
             <p>Organize modules and lessons hierarchically</p>
         </div>
-        <button class="btn-cm dark" onclick="toggleModal()">+ Add module</button>
+        <button class="btn-cm dark" onclick="CM_toggleModal()">+ Add module</button>
     </header>
 
-    <div class="cm-container" id="modulesContainer">
+    <div class="cm-container" id="courseMgmtContainer">
         <!-- Modules are rendered by JS -->
     </div>
 </main>
 
 <!-- ══ JAVASCRIPT ══════════════════════════════════════════════════════════ -->
 <script>
+(function() {
+
 /* ── Modal ─────────────────────────────────────────────────────────────── */
 function toggleModal() {
     document.getElementById('addModuleModal').classList.toggle('active');
@@ -261,15 +239,19 @@ function contentSummary(lesson) {
              'helper4Drawable','helper5Drawable','helper6Drawable','helper7Drawable'].forEach(k => {
                 if (obj[k] && obj[k].trim()) hasImg = true;
             });
+            ['helper1Url','helper2Url','helper3Url',
+             'helper4Url','helper5Url','helper6Url','helper7Url'].forEach(k => {
+                if (obj[k] && obj[k].trim()) hasImg = true;
+            });
             ['helper1Code','helper2Code','helper3Code',
              'helper4Code','helper5Code','helper6Code','helper7Code'].forEach(k => {
                 if (obj[k] && obj[k].trim()) hasCode = true;
             });
             if (obj.description || obj.title || obj.exampleDescription) hasText = true;
         };
-        if (block.TITLE) check(block.TITLE);
-        if (block.EXAMPLE?.TYPES) check(block.EXAMPLE.TYPES);
-        if (block.SUBTITLE?.OUTPUT) check(block.SUBTITLE.OUTPUT);
+        if (block.TITLE)              check(block.TITLE);
+        if (block.EXAMPLE?.TYPES)     check(block.EXAMPLE.TYPES);
+        if (block.SUBTITLE?.OUTPUT)   check(block.SUBTITLE.OUTPUT);
     });
 
     if (hasText)  parts.push('Text');
@@ -285,31 +267,68 @@ function buildLessonItem(lessonId, lesson, index) {
     const isArchived = lesson.archived === true;
     const archivedClass = isArchived ? ' archived' : '';
 
-    // Encode lesson ID for URL param safely
-    const encodedId = encodeURIComponent(lessonId);
-
     return `
-    <div class="cm-lesson-item${archivedClass}" id="lessonRow_${lessonId}">
+    <div class="cm-lesson-item${archivedClass}" id="cm-lessonRow_${lessonId}">
         <div class="cm-lesson-info">
             <h4 style="margin:0;font-size:20px;">${index}. ${title}</h4>
             <p style="margin:3px 0 0;font-size:10px;color:#94a3b8;">${summary}</p>
         </div>
         <div class="cm-actions" style="display:flex;gap:8px;">
             <button class="btn-cm dark"
-                onclick="window.location.href='add_module_form.php?edit=${encodedId}'">
+                onclick="CM_navigateToEdit('${lessonId}')">
                 Edit
             </button>
             <button class="btn-cm archive-btn"
-                onclick="archiveLesson('${lessonId}', this, ${isArchived})">
+                onclick="CM_archiveLesson('${lessonId}', this, ${isArchived})">
                 ${isArchived ? 'Unarchive' : 'Archive'}
             </button>
         </div>
     </div>`;
 }
 
+/* ── Navigate to edit ───────────────────────────────────────────────────── 
+   FIX: Invalidate the cache for this specific lesson before navigating so
+   the edit form always fetches fresh data from Firebase, not a stale copy.
+   ─────────────────────────────────────────────────────────────────────── */
+function navigateToEdit(lessonId) {
+    // Bust both the full list cache and the specific lesson cache
+    if (typeof FirebaseCache !== 'undefined') {
+        FirebaseCache.invalidate('Lessons');
+        FirebaseCache.invalidate('Lessons/' + lessonId);
+    }
+
+    // Store params in sessionStorage so add_module_form reads them (SPA pattern)
+    sessionStorage.setItem('navParams_add_module_form', JSON.stringify({ edit: lessonId }));
+
+    // Bust the panel cache so it re-initialises cleanly with a blank DOM
+    if (window._panels) delete window._panels['add_module_form'];
+
+    if (typeof window.navigate === 'function') {
+        history.replaceState(null, '', '?page=add_module_form&edit=' + encodeURIComponent(lessonId));
+        window.navigate('add_module_form');
+    } else {
+        window.location.href = 'index.php?page=add_module_form&edit=' + encodeURIComponent(lessonId);
+    }
+    }
+window.CM_navigateToEdit = navigateToEdit;
+
+/* ── Navigate to add module ─────────────────────────────────────────────── */
+function navigateToAddModule(level) {
+    document.getElementById('addModuleModal').classList.remove('active');
+    sessionStorage.setItem('navParams_add_module_form', JSON.stringify({ level: level }));
+    if (window._panels) delete window._panels['add_module_form'];
+    if (typeof window.navigate === 'function') {
+        history.replaceState(null, '', '?page=add_module_form&level=' + encodeURIComponent(level));
+        window.navigate('add_module_form');
+    } else {
+        window.location.href = 'index.php?page=add_module_form&level=' + encodeURIComponent(level);
+    }
+}
+window.CM_navigateToAddModule = navigateToAddModule;
+
 /* ── Build a full module card ───────────────────────────────────────────── */
 function buildModuleCard(mod, lessons) {
-    const checkId = `mod${mod.num}`;
+    const checkId = `cm-mod${mod.num}`;
     const count   = lessons.length;
 
     const lessonRows = count === 0
@@ -330,7 +349,7 @@ function buildModuleCard(mod, lessons) {
                 </div>
             </div>
         </label>
-        <div class="cm-lesson-list" id="lessonList_${mod.num}">
+        <div class="cm-lesson-list" id="cm-lessonList_${mod.num}">
             ${lessonRows}
         </div>
     </div>`;
@@ -338,15 +357,14 @@ function buildModuleCard(mod, lessons) {
 
 /* ── Archive / Unarchive a lesson ───────────────────────────────────────── */
 async function archiveLesson(lessonId, btn, currentlyArchived) {
-    const row      = document.getElementById('lessonRow_' + lessonId);
+    const row      = document.getElementById('cm-lessonRow_' + lessonId);
     const newState = !currentlyArchived;
 
-    btn.disabled     = true;
-    btn.textContent  = 'Saving…';
+    btn.disabled    = true;
+    btn.textContent = 'Saving…';
 
     try {
-        const db = firebase.database();
-        await db.ref('Lessons/' + lessonId + '/archived').set(newState);
+        await FirebaseCache.set('Lessons/' + lessonId + '/archived', newState);
 
         if (newState) {
             row.classList.add('archived');
@@ -355,8 +373,7 @@ async function archiveLesson(lessonId, btn, currentlyArchived) {
             row.classList.remove('archived');
             btn.textContent = 'Archive';
         }
-        // Flip the onclick flag
-        btn.setAttribute('onclick', `archiveLesson('${lessonId}', this, ${newState})`);
+        btn.setAttribute('onclick', `CM_archiveLesson('${lessonId}', this, ${newState})`);
     } catch (e) {
         alert('Error updating archive status: ' + e.message);
         btn.textContent = currentlyArchived ? 'Unarchive' : 'Archive';
@@ -367,11 +384,11 @@ async function archiveLesson(lessonId, btn, currentlyArchived) {
 
 /* ── Render skeleton frames while loading ──────────────────────────────── */
 function renderSkeletons() {
-    const container = document.getElementById('modulesContainer');
+    const container = document.getElementById('courseMgmtContainer');
     container.innerHTML = MODULES.map(mod => `
         <div class="cm-module-card">
-            <input type="checkbox" id="mod${mod.num}_sk" class="cm-checkbox">
-            <label for="mod${mod.num}_sk" class="cm-dropdown-label">
+            <input type="checkbox" id="cm-mod${mod.num}_sk" class="cm-checkbox">
+            <label for="cm-mod${mod.num}_sk" class="cm-dropdown-label">
                 <div class="cm-module-header">
                     <div class="cm-module-info">
                         <i class="fa-solid fa-caret-right caret-icon"></i>
@@ -391,11 +408,9 @@ async function loadModules() {
     renderSkeletons();
 
     try {
-        const db       = firebase.database();
-        const snapshot = await db.ref('Lessons').once('value');
+        const snapshot = await FirebaseCache.get('Lessons');
         const data     = snapshot.val() || {};
 
-        // Bucket by difficulty (case-insensitive)
         const buckets = { Beginner: [], Intermediate: [], Advanced: [] };
 
         Object.entries(data).forEach(([id, lesson]) => {
@@ -406,7 +421,6 @@ async function loadModules() {
             }
         });
 
-        // Sort within each bucket by lesson ID numerically (L1, L2 … L10 …)
         Object.keys(buckets).forEach(k => {
             buckets[k].sort((a, b) => {
                 const numA = parseInt(a.id.replace(/\D/g, ''), 10) || 0;
@@ -415,17 +429,21 @@ async function loadModules() {
             });
         });
 
-        const container = document.getElementById('modulesContainer');
+        const container = document.getElementById('courseMgmtContainer');
         container.innerHTML = MODULES.map(mod => buildModuleCard(mod, buckets[mod.level])).join('');
 
     } catch (e) {
-        document.getElementById('modulesContainer').innerHTML =
+        document.getElementById('courseMgmtContainer').innerHTML =
             `<p style="color:#ef4444;padding:20px;">Error loading lessons: ${e.message}</p>`;
     }
 }
 
-/* ── Boot ───────────────────────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', loadModules);
+/* ── Expose to global scope ─────────────────────────────────────────────── */
+window.CM_toggleModal   = toggleModal;
+window.CM_archiveLesson = archiveLesson;
+
+loadModules();
+})();
 </script>
 </body>
 </html>

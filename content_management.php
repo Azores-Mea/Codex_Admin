@@ -24,6 +24,7 @@
             appId: "1:273276166035:web:e1f895eeaa03200a975266"
         });
     </script>
+    <script src="firebase-cache.js"></script>
 
     <style>
         body {
@@ -234,17 +235,12 @@
 <div class="modal-overlay" id="assessModal">
     <div class="modal-box">
         <h2 class="modal-title">Select the type of assessment to modify:</h2>
-        <button class="assess-btn" onclick="selectAssessment('Quiz')">Quiz</button>
-        <button class="assess-btn" onclick="selectAssessment('Coding Exercise')">Coding Exercise</button>
-        <p class="cancel-link" onclick="closeModal()">Cancel</p>
+        <button class="assess-btn" onclick="CONT_selectAssessment('Quiz')">Quiz</button>
+        <button class="assess-btn" onclick="CONT_selectAssessment('Coding Exercise')">Coding Exercise</button>
+        <p class="cancel-link" onclick="CONT_closeModal()">Cancel</p>
     </div>
 </div>
 
-<!-- ══ SIDEBAR ════════════════════════════════════════════════════════════ -->
-<?php
-    $activePage = 'content_management';
-    include 'sidebar.php';
-?>
 
 <!-- ══ MAIN ════════════════════════════════════════════════════════════════ -->
 <main class="db-main">
@@ -255,13 +251,15 @@
         </div>
     </header>
 
-    <div class="cm-container" id="modulesContainer">
+    <div class="cm-container" id="contentMgmtContainer">
         <!-- Rendered by JS -->
     </div>
 </main>
 
 <!-- ══ JAVASCRIPT ══════════════════════════════════════════════════════════ -->
 <script>
+(function() {
+
 /* ── Active lesson context for modal ───────────────────────────────────── */
 let _activeLessonId = null;
 
@@ -276,12 +274,29 @@ function closeModal() {
 function selectAssessment(type) {
     if (!_activeLessonId) { closeModal(); return; }
     if (type === 'Coding Exercise') {
-        window.location.href = `add_coding_exercise_form.php?lesson=${encodeURIComponent(_activeLessonId)}`;
+        const params = { lesson: _activeLessonId };
+        sessionStorage.setItem('navParams_add_coding_exercise_form', JSON.stringify(params));
+        if (window._panels) delete window._panels['add_coding_exercise_form'];
+        history.replaceState(null, '', '?page=add_coding_exercise_form&lesson=' + encodeURIComponent(_activeLessonId));
+        if (typeof window.navigate === 'function') window.navigate('add_coding_exercise_form');
     } else {
-        window.location.href = `add_assessment_form.php?lesson=${encodeURIComponent(_activeLessonId)}&type=${encodeURIComponent(type)}`;
+        const params = { lesson: _activeLessonId, type };
+        sessionStorage.setItem('navParams_add_assessment_form', JSON.stringify(params));
+        if (window._panels) delete window._panels['add_assessment_form'];
+        history.replaceState(null, '', '?page=add_assessment_form&lesson=' + encodeURIComponent(_activeLessonId) + '&type=' + encodeURIComponent(type));
+        if (typeof window.navigate === 'function') window.navigate('add_assessment_form');
     }
     closeModal();
 }
+
+/* ── Register globals IMMEDIATELY so buttons work as soon as DOM exists ── */
+window.CONT_openAssessModal  = openAssessModal;
+window.CONT_closeModal       = closeModal;
+window.CONT_selectAssessment = selectAssessment;
+
+/* ── Modal backdrop click ───────────────────────────────────────────────── */
+const _modal = document.getElementById('assessModal');
+if (_modal) _modal.addEventListener('click', e => { if (e.target === _modal) closeModal(); });
 
 /* ── Module config ──────────────────────────────────────────────────────── */
 const MODULES = [
@@ -363,7 +378,10 @@ function buildAssessmentTags(assessTypes, codingItems) {
             const questions = assessTypes[type];
             const label     = LABELS[type] || type;
             if (SHOW_COUNT.has(type) && typeof questions === 'object') {
-                const total = Object.keys(questions).length;
+                const items = Array.isArray(questions)
+                    ? questions.filter(q => q != null)
+                    : Object.values(questions).filter(q => q != null);
+                const total = items.length;
                 chips.push(`<span class="a-chip">${label} (${total})</span>`);
             } else {
                 chips.push(`<span class="a-chip">${label}</span>`);
@@ -389,14 +407,14 @@ function buildLessonItem(lessonId, lesson, assessTypes, codingItems, index) {
     const assessTags = buildAssessmentTags(assessTypes, codingItems);
 
     return `
-    <div class="cm-lesson-item" id="lessonRow_${lessonId}">
+    <div class="cm-lesson-item" id="cont-lessonRow_${lessonId}">
         <div class="cm-lesson-info" style="flex:1;">
             <h4 style="margin:0;font-size:20px;">${index}. ${title}</h4>
             ${assessTags}
         </div>
         <div class="cm-actions" style="display:flex;gap:8px;margin-left:16px;font-size:10px;">
             <button class="btn-cm dark"
-                onclick="openAssessModal('${lessonId}')">
+                onclick="CONT_openAssessModal('${lessonId}')">
                 Modify assessment
             </button>
         </div>
@@ -405,7 +423,7 @@ function buildLessonItem(lessonId, lesson, assessTypes, codingItems, index) {
 
 /* ── Build module card ──────────────────────────────────────────────────── */
 function buildModuleCard(mod, lessons) {
-    const checkId = `mod${mod.num}`;
+    const checkId = `cont-mod${mod.num}`;
     const count   = lessons.length;
 
     const lessonRows = count === 0
@@ -428,7 +446,7 @@ function buildModuleCard(mod, lessons) {
                 </div>
             </div>
         </label>
-        <div class="cm-lesson-list" id="lessonList_${mod.num}">
+        <div class="cm-lesson-list" id="cont-lessonList_${mod.num}">
             ${lessonRows}
         </div>
     </div>`;
@@ -436,11 +454,11 @@ function buildModuleCard(mod, lessons) {
 
 /* ── Skeleton while loading ─────────────────────────────────────────────── */
 function renderSkeletons() {
-    const container = document.getElementById('modulesContainer');
+    const container = document.getElementById('contentMgmtContainer');
     container.innerHTML = MODULES.map(mod => `
         <div class="cm-module-card">
-            <input type="checkbox" id="mod${mod.num}_sk" class="cm-checkbox">
-            <label for="mod${mod.num}_sk" class="cm-dropdown-label">
+            <input type="checkbox" id="cont-mod${mod.num}_sk" class="cm-checkbox">
+            <label for="cont-mod${mod.num}_sk" class="cm-dropdown-label">
                 <div class="cm-module-header">
                     <div class="cm-module-info">
                         <i class="fa-solid fa-caret-right caret-icon"></i>
@@ -464,9 +482,9 @@ async function loadModules() {
 
         /* Fetch all three refs in parallel */
         const [lessonSnap, assessSnap, codingSnap] = await Promise.all([
-            db.ref('Lessons').once('value'),
-            db.ref('assessment').once('value'),          // assessment/{lessonId}/{type}/{questionId}
-            db.ref('coding_exercises').once('value'),    // coding_exercises/{lessonId}  (array)
+            FirebaseCache.get('Lessons'),
+            FirebaseCache.get('assessment'),
+            FirebaseCache.get('coding_exercises'),
         ]);
 
         const lessonsData  = lessonSnap.val()  || {};
@@ -493,18 +511,25 @@ async function loadModules() {
             });
         });
 
-        const container = document.getElementById('modulesContainer');
+        const container = document.getElementById('contentMgmtContainer');
         container.innerHTML = MODULES.map(mod =>
             buildModuleCard(mod, buckets[mod.level])
         ).join('');
 
     } catch (e) {
-        document.getElementById('modulesContainer').innerHTML =
+        document.getElementById('contentMgmtContainer').innerHTML =
             `<p style="color:#ef4444;padding:20px;">Error loading lessons: ${e.message}</p>`;
     }
 }
 
-document.addEventListener('DOMContentLoaded', loadModules);
+/* ── Boot — runs immediately when script is injected by the SPA ─────────── */
+/* DOMContentLoaded has already fired by the time this panel is built,     */
+/* so we call loadModules() directly instead.                               */
+
+// Expose onclick handlers to global scope (called from HTML attributes)
+
+loadModules();
+})(); // ── end IIFE ──
 </script>
 </body>
 </html>

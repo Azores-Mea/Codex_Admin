@@ -29,39 +29,114 @@
 </head>
 <body>
 
-    <script>
-        firebase.auth().onAuthStateChanged(function(user) {
-            if (!user) { window.location.href = 'login.php'; return; }
+    
+    <main class="db-main">
+        <header class="db-header">
+            <h2>Dashboard</h2>
+            <p>Welcome back, Ma'am Joms. Here's your platform overview.</p>
+        </header>
+        <section class="db-stats-grid">
+            <div class="db-card blue">
+                <span class="label">Total Learners</span>
+                <span class="value">—</span>
+            </div>
+            <div class="db-card orange">
+                <span class="label">Avg. Completion</span>
+                <span class="value">—</span>
+                <p class="subtext">across all modules</p>
+            </div>
+            <div class="db-card sky">
+                <span class="label">Avg. Passing Rate</span>
+                <span class="value">—</span>
+                <p class="subtext">quizzes & exercises</p>
+            </div>
+            <div class="db-card dark">
+                <span class="label">Difficult Module</span>
+                <span class="value" style="font-size: 1.1rem;">—</span>
+                <p class="subtext">—</p>
+            </div>
+        </section>
+        <section class="db-charts-container">
+            <div class="db-chart-box">
+                <h3>Completion by difficulty level</h3>
+                <div class="canvas-wrapper"><canvas id="barChart" height="260"></canvas></div>
+            </div>
+            <div class="db-chart-box">
+                <h3>Learner classification breakdown</h3>
+                <div class="canvas-wrapper"><canvas id="pieChart" height="260"></canvas></div>
+            </div>
+        </section>
+    </main>
 
-            const db = firebase.database();
-            const CACHE_KEY = 'dashboard_data';
-            const CACHE_TTL = 3 * 60 * 1000;
+<script>
+let barChartInstance = null;
+let pieChartInstance = null;
 
-            const cached = sessionStorage.getItem(CACHE_KEY);
-            if (cached) {
-                try {
-                    const { data, timestamp } = JSON.parse(cached);
-                    if (Date.now() - timestamp < CACHE_TTL) {
-                        renderDashboard(...data);
-                        return;
-                    }
-                } catch(e) { sessionStorage.removeItem(CACHE_KEY); }
-            }
+const CACHE_KEY = 'codex_dashboard_data';
+const CACHE_TIME_KEY = "codex_dashboard_time";
+const CACHE_EXPIRY = 10 * 60 * 1000; // 10 minutes
+function saveToCache(data) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch(e) {}
+}
 
-            Promise.all([
-                db.ref('Users').once('value'),
-                db.ref('quizResults').once('value'),
-                db.ref('unlockedLessons').once('value'),
-                db.ref('Lessons').once('value'),
-                db.ref('exerciseResults').once('value')
-            ]).then(snaps => {
-                const data = snaps.map(s => s.val() || {});
-                sessionStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
-                renderDashboard(...data);
-            });
-        });
+function loadFromCache() {
+    const raw = localStorage.getItem(CACHE_KEY);
+    const time = localStorage.getItem(CACHE_TIME_KEY);
+
+    if (!raw || !time) return null;
+    if (Date.now() - parseInt(time) > CACHE_EXPIRY) return null;
+
+    return JSON.parse(raw);
+}
+
+function showSkeletons() {
+    document.querySelector('.db-card.blue .value').textContent     = '—';
+    document.querySelector('.db-card.orange .value').textContent   = '—';
+    document.querySelector('.db-card.sky .value').textContent      = '—';
+    document.querySelector('.db-card.dark .value').textContent     = '—';
+    document.querySelector('.db-card.dark .subtext').textContent   = '—';
+}
+
+function destroyCharts() {
+    if (barChartInstance) { barChartInstance.destroy(); barChartInstance = null; }
+    if (pieChartInstance) { pieChartInstance.destroy(); pieChartInstance = null; }
+}
+
+async function loadDashboard() {
+    const cached = loadFromCache();
+    if (cached) {
+        renderDashboard(cached[0], cached[1], cached[2], cached[3], cached[4]);
+        return;
+    }
+
+    showSkeletons();
+    const db = firebase.database();
+    const snaps = await Promise.all([
+        db.ref('Users').once('value'),
+        db.ref('quizResults').once('value'),
+        db.ref('unlockedLessons').once('value'),
+        db.ref('Lessons').once('value'),
+        db.ref('exerciseResults').once('value')
+    ]);
+    const data = snaps.map(s => s.val() || {});
+    saveToCache(data);
+    renderDashboard(data[0], data[1], data[2], data[3], data[4]);
+}
+
+firebase.auth().onAuthStateChanged(function(user) {
+    if (!user) { window.location.href = 'login.php'; return; }
+    loadDashboard();
+});
 
 function renderDashboard(Users, quizResults, unlocked, Lessons, exerciseResults) {
+    Users           = Users           || {};
+    quizResults     = quizResults     || {};
+    unlocked        = unlocked        || {};
+    Lessons         = Lessons         || {};
+    exerciseResults = exerciseResults || {};
+
+    destroyCharts();
+
     const allUserIds   = Object.keys(Users);
     const totalLessons = Object.keys(Lessons).length;
 
@@ -79,14 +154,14 @@ function renderDashboard(Users, quizResults, unlocked, Lessons, exerciseResults)
 
     const userPassRates = [];
     allUserIds.forEach(uid => {
-        const quizUser     = quizResults[uid]     || {};
-        const exerciseUser = exerciseResults[uid] || {};
+        const quizUser      = quizResults[uid]     || {};
+        const exerciseUser  = exerciseResults[uid] || {};
         const attemptedLids = new Set([...Object.keys(quizUser), ...Object.keys(exerciseUser)]);
         if (!attemptedLids.size) return;
         let passedCount = 0;
         attemptedLids.forEach(lid => {
-            const qData = quizUser[lid];
-            const eData = exerciseUser[lid];
+            const qData  = quizUser[lid];
+            const eData  = exerciseUser[lid];
             const quizOk = !qData || qData.passed === 'Passed';
             const exOk   = !eData || eData.correctCount === eData.totalExercises;
             if (quizOk && exOk) passedCount++;
@@ -100,8 +175,8 @@ function renderDashboard(Users, quizResults, unlocked, Lessons, exerciseResults)
 
     const moduleAttempts = {}, moduleFails = {};
     allUserIds.forEach(uid => {
-        const quizUser     = quizResults[uid]     || {};
-        const exerciseUser = exerciseResults[uid] || {};
+        const quizUser      = quizResults[uid]     || {};
+        const exerciseUser  = exerciseResults[uid] || {};
         const attemptedLids = new Set([...Object.keys(quizUser), ...Object.keys(exerciseUser)]);
         attemptedLids.forEach(lid => {
             moduleAttempts[lid] = (moduleAttempts[lid] || 0) + 1;
@@ -133,7 +208,7 @@ function renderDashboard(Users, quizResults, unlocked, Lessons, exerciseResults)
         const ids = diffLessons[difficulty] || [];
         if (!ids.length) return 0;
         const vals = allUserIds.map(uid => {
-            const userUnlocked = unlocked[uid] || {};
+            const userUnlocked   = unlocked[uid] || {};
             const accessedInTier = ids.filter(id => id === 'L1' || typeof userUnlocked[id] === 'object').length;
             return accessedInTier / ids.length;
         });
@@ -141,7 +216,7 @@ function renderDashboard(Users, quizResults, unlocked, Lessons, exerciseResults)
     };
 
     const barCtx = document.getElementById('barChart').getContext('2d');
-    new Chart(barCtx, {
+    barChartInstance = new Chart(barCtx, {
         type: 'bar',
         data: {
             labels: ['Bgnr', 'Int', 'Adv'],
@@ -152,7 +227,8 @@ function renderDashboard(Users, quizResults, unlocked, Lessons, exerciseResults)
             ]
         },
         options: {
-            responsive: true, maintainAspectRatio: false,
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: { legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 20 } } },
             scales: {
                 x: { grid: { display: false } },
@@ -167,7 +243,7 @@ function renderDashboard(Users, quizResults, unlocked, Lessons, exerciseResults)
     const pct = n => classTotal ? Math.round(n / classTotal * 100) : 0;
 
     const pieCtx = document.getElementById('pieChart').getContext('2d');
-    new Chart(pieCtx, {
+    pieChartInstance = new Chart(pieCtx, {
         type: 'pie',
         data: {
             labels: [
@@ -175,61 +251,19 @@ function renderDashboard(Users, quizResults, unlocked, Lessons, exerciseResults)
                 `Intermediate — ${pct(counts.Intermediate)}%`,
                 `Advanced — ${pct(counts.Advanced)}%`
             ],
-            datasets: [{ data: [counts.Beginner, counts.Intermediate, counts.Advanced], backgroundColor: ['#E3AF64', '#4398F2', '#A666F4'], borderWidth: 0 }]
+            datasets: [{
+                data: [counts.Beginner, counts.Intermediate, counts.Advanced],
+                backgroundColor: ['#E3AF64', '#4398F2', '#A666F4'],
+                borderWidth: 0
+            }]
         },
         options: {
-            responsive: true, maintainAspectRatio: false,
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: { legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 25 } } }
         }
     });
 }
-    </script>
-
-
-<!-- ══ SIDEBAR ══════════════════════════════════════════════════════════ -->
-<?php
-    $activePage = 'dashboard';
-    include 'sidebar.php';
-?>
-
-    
-    <main class="db-main">
-        <header class="db-header">
-            <h2>Dashboard</h2>
-            <p>Welcome back, Ma'am Joms. Here's your platform overview.</p>
-        </header>
-        <section class="db-stats-grid">
-            <div class="db-card blue">
-                <span class="label">Total Learners</span>
-                <span class="value">—</span>
-            </div>
-            <div class="db-card orange">
-                <span class="label">Avg. Completion</span>
-                <span class="value">—</span>
-                <p class="subtext">across all modules</p>
-            </div>
-            <div class="db-card sky">
-                <span class="label">Avg. Passing Rate</span>
-                <span class="value">—</span>
-                <p class="subtext">quizzes & exercises</p>
-            </div>
-            <div class="db-card dark">
-                <span class="label">Difficult Module</span>
-                <span class="value" style="font-size: 1.1rem;">—</span>
-                <p class="subtext">—</p>
-            </div>
-        </section>
-        <section class="db-charts-container">
-            <div class="db-chart-box">
-                <h3>Completion by difficulty level</h3>
-                <div class="canvas-wrapper"><canvas id="barChart"></canvas></div>
-            </div>
-            <div class="db-chart-box">
-                <h3>Learner classification breakdown</h3>
-                <div class="canvas-wrapper"><canvas id="pieChart"></canvas></div>
-            </div>
-        </section>
-    </main>
-
+</script>
 </body>
 </html>

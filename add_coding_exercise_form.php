@@ -9,32 +9,8 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
     <title>CODEX | Coding Exercise — <?= $lessonId ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="dashboard.css">
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-    <script>
-        firebase.initializeApp({
-            apiKey: "AIzaSyBmFwQe51Sfkhr36aXXlw4NYv7jag-8OcY",
-            authDomain: "codex-f1355.firebaseapp.com",
-            databaseURL: "https://codex-f1355-default-rtdb.firebaseio.com",
-            projectId: "codex-f1355",
-            storageBucket: "codex-f1355.firebasestorage.app",
-            messagingSenderId: "273276166035",
-            appId: "1:273276166035:web:e1f895eeaa03200a975266"
-        });
-        const LESSON_ID = <?= json_encode($lessonId) ?>;
-
-        /* ── Per-type block limits ───────────────────────────────────── */
-        const BLOCK_LIMITS = {
-            FindingSyntaxError : 2,
-            ProgramTracing     : 2,
-            MachineProblem     : 1,
-        };
-    </script>
-
+    
     <style>
-        /* ── Base ─────────────────────────────────────────────────────── */
         body { display: flex; margin: 0; background: #f1f5f9; font-family: 'Inter', sans-serif; }
 
         .db-main {
@@ -42,7 +18,6 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
             overflow-y: auto; height: 100vh; box-sizing: border-box;
         }
 
-        /* ── Page header ─────────────────────────────────────────────── */
         .af-title h2 { margin: 0 0 4px; font-size: 22px; font-weight: 800; color: #1e293b; }
         .af-title p  { margin: 0 0 10px; font-size: 13px; color: #94a3b8; }
 
@@ -54,7 +29,6 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
         .diff-badge.Intermediate { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
         .diff-badge.Advanced     { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
 
-        /* ── Exercise TYPE section ───────────────────────────────────── */
         .ex-section {
             background: white; border-radius: 14px;
             border: 1px solid #e2e8f0;
@@ -62,7 +36,6 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
             margin-bottom: 20px; overflow: hidden;
         }
 
-        /* Section header */
         .ex-section-header {
             display: flex; align-items: center; justify-content: space-between;
             padding: 16px 24px; cursor: pointer; user-select: none;
@@ -80,7 +53,6 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
         .badge-tracing { background: #eff6ff; color: #1d4ed8; border: 1.5px solid #bfdbfe; }
         .badge-machine { background: #f0fdf4; color: #15803d; border: 1.5px solid #bbf7d0; }
 
-        /* Per-section block count pill */
         .block-count-pill {
             font-size: 11px; font-weight: 700; padding: 3px 11px;
             border-radius: 20px; border: 1px solid #e2e8f0;
@@ -94,7 +66,6 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
 
         .ex-section-body { padding: 20px 24px; }
 
-        /* ── Code Block card ─────────────────────────────────────────── */
         .code-block-card {
             border: 1.5px solid #e2e8f0; border-radius: 10px;
             margin-bottom: 14px; overflow: hidden;
@@ -124,14 +95,12 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
 
         .code-block-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
 
-        /* ── Field labels ────────────────────────────────────────────── */
         .field-label {
             font-size: 10px; font-weight: 800; color: #94a3b8;
             text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px;
             display: block;
         }
 
-        /* ── Text inputs ─────────────────────────────────────────────── */
         .input-field {
             width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0;
             border-radius: 8px; font-size: 13px; font-family: inherit;
@@ -151,7 +120,6 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
         .instruction-textarea:focus { outline: none; border-color: #3b82f6; }
         .instruction-textarea::placeholder { color: #cbd5e1; }
 
-        /* ── Code editor block ───────────────────────────────────────── */
         .code-compiler-wrap {
             border: 1.5px solid #e2e8f0; border-radius: 8px; overflow: hidden;
         }
@@ -174,7 +142,6 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
         .code-textarea:focus { outline: none; }
         .code-textarea::placeholder { color: #475569; }
 
-        /* ── Add block button ────────────────────────────────────────── */
         .add-block-btn {
             display: flex; align-items: center; justify-content: center; gap: 8px;
             width: 100%; padding: 14px;
@@ -184,7 +151,6 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
         }
         .add-block-btn:hover { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
 
-        /* ── Limit reached notice ────────────────────────────────────── */
         .limit-notice {
             display: flex; align-items: center; justify-content: center; gap: 8px;
             padding: 12px 16px; background: #fefce8;
@@ -194,7 +160,6 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
         }
         .limit-notice i { font-size: 13px; }
 
-        /* ── Footer ──────────────────────────────────────────────────── */
         .footer-bar {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: white; border-top: 1px solid #e2e8f0;
@@ -217,7 +182,6 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
         .btn-save:hover { background: #0f3460; }
         .btn-save:disabled { opacity: .5; cursor: not-allowed; }
 
-        /* ── Toast ───────────────────────────────────────────────────── */
         .toast {
             position: fixed; bottom: 80px; right: 30px;
             padding: 12px 20px; border-radius: 10px; font-size: 13px;
@@ -236,7 +200,6 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── Save confirmation modal ─────────────────────────────────── */
         .modal-overlay {
             position: fixed; inset: 0;
             background: rgba(15,23,42,.55);
@@ -300,7 +263,6 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
         .modal-btn-save:hover { background: #1e3a5f; }
         .modal-btn-save:disabled { opacity: .6; cursor: not-allowed; }
 
-        /* Loading overlay */
         .page-loading {
             position: fixed; inset: 0; background: rgba(248,250,252,.93);
             display: flex; flex-direction: column; align-items: center;
@@ -311,19 +273,23 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
     </style>
 </head>
 <body>
-
+<script>
+    /* ── Firebase guard (SPA reuses parent's instance) ── */
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+            firebase.initializeApp({ /* your config */ });
+        }
+        const LESSON_ID = <?= json_encode($lessonId) ?>;
+        const BLOCK_LIMITS = {
+            FindingSyntaxError : 2,
+            ProgramTracing     : 2,
+            MachineProblem     : 1,
+        };
+    </script>
 <div class="page-loading" id="pageLoading">
     <span class="spinner" style="width:26px;height:26px;border-width:3px;border-color:#dbeafe;border-top-color:#3b82f6;"></span>
     <p>Loading exercises…</p>
 </div>
 
-<!-- ══ SIDEBAR ════════════════════════════════════════════════════════════ -->
-<?php
-    $activePage = 'content_management';
-    include 'sidebar.php';
-?>
-
-<!-- ══ MAIN ════════════════════════════════════════════════════════════════ -->
 <main class="db-main">
 
     <div class="af-title">
@@ -419,7 +385,7 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
 
 <!-- ══ FOOTER ══════════════════════════════════════════════════════════════ -->
 <div class="footer-bar">
-    <button class="btn-cancel" onclick="window.location.href='content_management.php'">
+    <button class="btn-cancel" onclick="window.location.href='index.php?page=content_management';">
         <i class="fa-solid fa-xmark" style="margin-right:4px;"></i> Cancel
     </button>
     <button class="btn-save" id="saveBtn" onclick="openSaveModal()">
@@ -429,8 +395,15 @@ $lessonId = htmlspecialchars($_GET['lesson'] ?? '');
 
 <div class="toast" id="toast"></div>
 
-<!-- ══ JAVASCRIPT ══════════════════════════════════════════════════════════ -->
 <script>
+function goToPage(page) {
+    if (typeof window.navigate === 'function') {
+        window.navigate(page);
+    } else {
+        window.location.href = 'index.php?page=' + page;
+    }
+}
+
 /* ─── Per-section block counters ────────────────────────────────────────── */
 const counters = {
     FindingSyntaxError: 0,
@@ -487,7 +460,7 @@ function toggleBlock(blockId) {
     document.getElementById(blockId).classList.toggle('collapsed');
 }
 
-/* ─── Update the add-button / limit-notice visibility for a type ────────── */
+/* ─── Update the add-button / limit-notice visibility ───────────────────── */
 function updateLimitUI(type) {
     const count  = document.querySelectorAll(`#blocks_${type} .code-block-card`).length;
     const limit  = BLOCK_LIMITS[type];
@@ -508,7 +481,6 @@ function addBlock(type, existing) {
     const currentCount = document.querySelectorAll(`#blocks_${type} .code-block-card`).length;
     const limit = BLOCK_LIMITS[type];
 
-    // Guard: respect limit
     if (currentCount >= limit) {
         updateLimitUI(type);
         return;
@@ -568,7 +540,6 @@ function addBlock(type, existing) {
 
     document.getElementById('blocks_' + type).insertAdjacentHTML('beforeend', html);
 
-    /* Populate existing data if loading */
     if (existing) {
         const f = (id) => document.getElementById(id);
         if (f(blockId + '_title'))        f(blockId + '_title').value        = decodeText(existing.title       || '');
@@ -590,7 +561,7 @@ function removeBlock(event, blockId, type) {
     setTimeout(() => {
         el.remove();
         renumberBlocks(type);
-        updateLimitUI(type);   // re-show add button if now under limit
+        updateLimitUI(type);
     }, 250);
 }
 
@@ -600,12 +571,10 @@ function renumberBlocks(type) {
         const numEl = card.querySelector('.code-block-num');
         if (numEl) numEl.textContent = 'Code Block ' + (i + 1);
 
-        // Show/hide Remove button: only show on 2nd block onwards
         const removeBtn = card.querySelector('.btn-remove-block');
         if (i === 0 && removeBtn) {
             removeBtn.style.display = 'none';
         } else if (i > 0 && !removeBtn) {
-            // Re-insert remove button if it was hidden
             const right = card.querySelector('.block-header-right');
             if (right) {
                 const btn = document.createElement('button');
@@ -618,9 +587,8 @@ function renumberBlocks(type) {
     });
 }
 
-/* ─── Boot ──────────────────────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', async () => {
-    // Init all count pills at 0
+/* ─── Boot — fetch DIRECTLY from Firebase, bypass cache ────────────────── */
+async function init() {
     Object.keys(BLOCK_LIMITS).forEach(type => updateLimitUI(type));
 
     if (!LESSON_ID) {
@@ -633,15 +601,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const db = firebase.database();
 
-        /* Load lesson title + difficulty */
-        const lSnap  = await db.ref('Lessons/' + LESSON_ID).once('value');
-        const lesson = lSnap.val() || {};
-        const diff   = lesson.difficulty || '';
-        lessonDifficulty = diff;
+        const lessonSnap = await db.ref('Lessons/' + LESSON_ID).once('value');
+        const lesson     = lessonSnap.val() || {};
+        const diff       = lesson.difficulty || '';
 
         const badge = document.getElementById('diffBadge');
         badge.textContent = diff;
         badge.className   = 'diff-badge ' + diff;
+        lessonDifficulty  = diff;
 
         const titleEl = document.getElementById('lessonTitleSpan');
         if (lesson.main_title) {
@@ -650,41 +617,71 @@ document.addEventListener('DOMContentLoaded', async () => {
             titleEl.textContent = tmp.textContent.trim() || LESSON_ID;
         }
 
-        /* Load exercise data for each type */
-        const TYPES = ['FindingSyntaxError', 'ProgramTracing', 'MachineProblem'];
-        for (const type of TYPES) {
-            const snap = await db.ref(`assessment/${LESSON_ID}/${type}`).once('value');
-            const data = snap.val();
-            const limit = BLOCK_LIMITS[type];
+        const codingSnap = await db.ref('assessment/' + LESSON_ID).once('value');
+        const lessonData = codingSnap.val();
 
-            if (Array.isArray(data)) {
-                const exercises = data.slice(1).filter(Boolean).slice(0, limit);
-                if (exercises.length > 0) {
-                    exercises.forEach(ex => addBlock(type, ex));
+        const TYPES = ['FindingSyntaxError', 'ProgramTracing', 'MachineProblem'];
+
+        if (!lessonData) {
+            // ── No data at all — start empty ──────────────────────────
+            TYPES.forEach(t => addBlock(t));
+
+        } else if (!Array.isArray(lessonData) && typeof lessonData === 'object') {
+            // ── New keyed format: { FindingSyntaxError:[...], ... } ───
+            for (const type of TYPES) {
+                const data  = lessonData[type] || null;
+                const limit = BLOCK_LIMITS[type];
+
+                if (Array.isArray(data)) {
+                    const exercises = data.slice(1).filter(Boolean).slice(0, limit);
+                    exercises.length > 0
+                        ? exercises.forEach(ex => addBlock(type, ex))
+                        : addBlock(type);
+                } else if (data && typeof data === 'object') {
+                    const exercises = Object.values(data).filter(Boolean).slice(0, limit);
+                    exercises.length > 0
+                        ? exercises.forEach(ex => addBlock(type, ex))
+                        : addBlock(type);
                 } else {
                     addBlock(type);
                 }
-            } else if (data && typeof data === 'object') {
-                const exercises = Object.values(data).filter(Boolean).slice(0, limit);
-                if (exercises.length > 0) {
-                    exercises.forEach(ex => addBlock(type, ex));
-                } else {
-                    addBlock(type);
-                }
-            } else {
-                addBlock(type);
             }
+
+        } else if (Array.isArray(lessonData)) {
+            // ── Old flat array format: [null, {...}, {...}, {...}] ─────
+            // These were saved without type keys — treat them as
+            // FindingSyntaxError entries (the original legacy format).
+            // Show them all under FindingSyntaxError so nothing is lost.
+            const exercises = lessonData.slice(1).filter(Boolean);
+            const limit     = BLOCK_LIMITS['FindingSyntaxError'];
+            const toLoad    = exercises.slice(0, limit);
+
+            toLoad.length > 0
+                ? toLoad.forEach(ex => addBlock('FindingSyntaxError', ex))
+                : addBlock('FindingSyntaxError');
+
+            // Other sections start empty
+            addBlock('ProgramTracing');
+            addBlock('MachineProblem');
         }
 
     } catch (e) {
         showToast('Error loading: ' + e.message, 'error');
+        console.error(e);
         Object.keys(BLOCK_LIMITS).forEach(t => addBlock(t));
     } finally {
         document.getElementById('pageLoading').classList.add('hidden');
     }
-});
+}
 
-/* ─── Collect blocks for one section (skips fully empty blocks) ─────────── */
+/* ── Boot: same pattern as add_module_form.php ── */
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+/* ─── Collect blocks for one section ───────────────────────────────────── */
 function collectBlocks(type) {
     const cards = document.querySelectorAll(`#blocks_${type} .code-block-card`);
     const result = [null];
@@ -696,7 +693,6 @@ function collectBlocks(type) {
         const code  = (document.getElementById(id + '_code')?.value || '').trim();
         const out   = (document.getElementById(id + '_output')?.value || '').trim();
 
-        // Only include blocks that have at least one field filled
         if (!title && !instr && !code && !out) return;
 
         result.push({
@@ -712,21 +708,14 @@ function collectBlocks(type) {
     return result;
 }
 
-/* ─── Validate ──────────────────────────────────────────────────────────── */
-function validate() {
-    // No fields are required — blocks with no content are skipped on save
-    return [];
-}
-
 /* ─── Save modal ────────────────────────────────────────────────────────── */
 let lessonDifficulty = '';
 
 function openSaveModal() {
-    // Count only blocks that actually have content
     const TYPES = ['FindingSyntaxError', 'ProgramTracing', 'MachineProblem'];
     let totalBlocks = 0;
     TYPES.forEach(t => {
-        totalBlocks += collectBlocks(t).length - 1; // subtract the leading null
+        totalBlocks += collectBlocks(t).length - 1;
     });
 
     const diff = lessonDifficulty ? ` (${lessonDifficulty})` : '';
@@ -742,14 +731,11 @@ function closeModal() {
     document.getElementById('saveModal').classList.remove('show');
 }
 
-// Close on overlay click
 document.getElementById('saveModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
 });
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   confirmSave — saves assessment data, then re-evaluates ALL learner answers
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ─── confirmSave ───────────────────────────────────────────────────────── */
 async function confirmSave() {
     const modalBtn = document.getElementById('modalSaveBtn');
     modalBtn.disabled = true;
@@ -759,7 +745,6 @@ async function confirmSave() {
         const db = firebase.database();
         const TYPES = ['FindingSyntaxError', 'ProgramTracing', 'MachineProblem'];
 
-        /* ── Step 1: Write new assessment blocks ── */
         const savedBlocks = {};
         for (const type of TYPES) {
             const blocks = collectBlocks(type);
@@ -769,9 +754,14 @@ async function confirmSave() {
             }
         }
 
-        /* ── Step 2: Re-evaluate every learner who answered this lesson ── */
         modalBtn.innerHTML = '<span class="spinner"></span> Re-evaluating learners…';
         const reevalCount = await reEvaluateAllLearners(db, savedBlocks);
+
+        // Invalidate cache after write
+        if (typeof FirebaseCache !== 'undefined') {
+            FirebaseCache.invalidate('assessment');
+            FirebaseCache.invalidate('assessment');
+        }
 
         closeModal();
 
@@ -780,8 +770,7 @@ async function confirmSave() {
             : 'Coding exercises saved!';
         showToast(msg, 'success');
 
-        setTimeout(() => { window.location.href = 'content_management.php'; }, 1400);
-
+setTimeout(() => { window.location.href = 'index.php?page=content_management'; }, 1400);
     } catch (e) {
         closeModal();
         showToast('Error: ' + e.message, 'error');
@@ -792,23 +781,13 @@ async function confirmSave() {
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   reEvaluateAllLearners
-   ─────────────────────────────────────────────────────────────────────────
-   For each exercise type that was just saved, fetches every learner's stored
-   answers and re-checks isCorrect against the new expectedOutput values.
-   All updates are batched into a single db.ref().update() call.
-
-   Returns the number of individual learner/lesson records touched.
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ─── reEvaluateAllLearners ─────────────────────────────────────────────── */
 async function reEvaluateAllLearners(db, savedBlocks) {
-    const updates = {};      // flat path → value map for batch write
+    const updates = {};
     let touchedCount = 0;
 
-    /* ── Finding Syntax Error ─────────────────────────────────────────── */
     if (savedBlocks.FindingSyntaxError) {
-        const newExercises = savedBlocks.FindingSyntaxError; // [null, {expectedOutput,...}, ...]
-
+        const newExercises = savedBlocks.FindingSyntaxError;
         const snap = await db.ref('userSyntaxErrorAnswers').once('value');
         const allAnswers = snap.val() || {};
 
@@ -816,37 +795,28 @@ async function reEvaluateAllLearners(db, savedBlocks) {
             const lessonAnswers = allAnswers[uid]?.[LESSON_ID];
             if (!lessonAnswers) continue;
 
-            // Stored as array [null, {...}, {...}]  OR  plain object
             const answersArr = Array.isArray(lessonAnswers)
                 ? lessonAnswers
                 : [null, ...Object.values(lessonAnswers)];
 
             let correctCount = 0;
-
             for (let i = 1; i < answersArr.length; i++) {
                 const entry = answersArr[i];
                 if (!entry) continue;
-
-                // If admin removed this block index, mark as incorrect
                 const newExpected = newExercises[i]?.expectedOutput?.trim();
                 const userOutput  = (entry.output || '').trim();
                 const isCorrect   = newExpected !== undefined && newExpected !== '' && userOutput === newExpected;
-
                 updates[`userSyntaxErrorAnswers/${uid}/${LESSON_ID}/${i}/isCorrect`] = isCorrect;
                 if (isCorrect) correctCount++;
             }
-
-            // Refresh the summary counter
             updates[`syntaxErrorResults/${uid}/${LESSON_ID}/correctCount`]   = correctCount;
             updates[`syntaxErrorResults/${uid}/${LESSON_ID}/totalExercises`] = newExercises.length - 1;
             touchedCount++;
         }
     }
 
-    /* ── Program Tracing ──────────────────────────────────────────────── */
     if (savedBlocks.ProgramTracing) {
         const newExercises = savedBlocks.ProgramTracing;
-
         const snap = await db.ref('userTracingAnswers').once('value');
         const allAnswers = snap.val() || {};
 
@@ -859,55 +829,41 @@ async function reEvaluateAllLearners(db, savedBlocks) {
                 : [null, ...Object.values(lessonAnswers)];
 
             let correctCount = 0;
-
             for (let i = 1; i < answersArr.length; i++) {
                 const entry = answersArr[i];
                 if (!entry) continue;
-
                 const newExpected = newExercises[i]?.expectedOutput?.trim();
                 const userAnswer  = (entry.answer || '').trim();
                 const isCorrect   = newExpected !== undefined && newExpected !== '' && userAnswer === newExpected;
-
                 updates[`userTracingAnswers/${uid}/${LESSON_ID}/${i}/isCorrect`] = isCorrect;
                 if (isCorrect) correctCount++;
             }
-
             updates[`tracingResults/${uid}/${LESSON_ID}/correctCount`]   = correctCount;
             updates[`tracingResults/${uid}/${LESSON_ID}/totalExercises`] = newExercises.length - 1;
             touchedCount++;
         }
     }
 
-    /* ── Machine Problem ──────────────────────────────────────────────── */
     if (savedBlocks.MachineProblem && savedBlocks.MachineProblem[1]) {
         const newExpected = (savedBlocks.MachineProblem[1].expectedOutput || '').trim();
-
         const snap = await db.ref('userMachineProblemAnswers').once('value');
         const allAnswers = snap.val() || {};
 
         for (const uid of Object.keys(allAnswers)) {
             const entry = allAnswers[uid]?.[LESSON_ID];
             if (!entry || typeof entry !== 'object') continue;
-
             const userOutput = (entry.output || '').trim();
             const isCorrect  = newExpected !== '' && userOutput === newExpected;
-
             updates[`userMachineProblemAnswers/${uid}/${LESSON_ID}/isCorrect`] = isCorrect;
             touchedCount++;
         }
     }
 
-    /* ── Write everything in one atomic batch ─────────────────────────── */
     if (Object.keys(updates).length > 0) {
         await db.ref().update(updates);
     }
 
     return touchedCount;
-}
-
-/* ─── Original saveAll kept as internal helper (called by confirmSave) ─── */
-async function saveAll() {
-    openSaveModal();
 }
 </script>
 </body>

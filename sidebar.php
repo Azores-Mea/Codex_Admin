@@ -1,9 +1,3 @@
-<?php
-function sidebarActive(string $page, string $activePage): string {
-    return $activePage === $page ? ' active' : '';
-}
-?>
-
 <!-- Logout Confirmation Modal -->
 <div id="logoutModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:9999; align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:16px; border:0.5px solid #e2e8f0; padding:2rem; width:340px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.15);">
@@ -45,36 +39,36 @@ function sidebarActive(string $page, string $activePage): string {
 
     <nav class="db-nav-list">
 
-        <div class="db-nav-item<?= sidebarActive('dashboard', $activePage) ?>">
-            <a href="dashboard.php">
+        <div class="db-nav-item" id="nav-dashboard">
+            <a href="#" data-page="dashboard">
                 <i class="fa-solid fa-table-cells-large"></i> Dashboard
             </a>
         </div>
 
-        <div class="db-nav-item<?= sidebarActive('learner_progress', $activePage) ?>">
-            <a href="learner_progress.php">
+        <div class="db-nav-item" id="nav-learner_progress">
+            <a href="#" data-page="learner_progress">
                 <i class="fa-solid fa-user-group"></i> Learner Progress
             </a>
         </div>
 
         <div class="db-section-header">Content</div>
 
-        <div class="db-nav-item<?= sidebarActive('course_management', $activePage) ?>">
-            <a href="course_management.php">
+        <div class="db-nav-item" id="nav-course_management">
+            <a href="#" data-page="course_management">
                 <i class="fa-solid fa-bars-staggered"></i> Course Management
             </a>
         </div>
 
-        <div class="db-nav-item<?= sidebarActive('content_management', $activePage) ?>">
-            <a href="content_management.php">
+        <div class="db-nav-item" id="nav-content_management">
+            <a href="#" data-page="content_management">
                 <i class="fa-solid fa-bookmark"></i> Content Management
             </a>
         </div>
 
         <div class="db-section-header">System</div>
 
-        <div class="db-nav-item<?= sidebarActive('admin', $activePage) ?>">
-            <a href="#">
+        <div class="db-nav-item" id="nav-admin">
+            <a href="#" data-page="admin">
                 <i class="fa-solid fa-circle-dot"></i> Admin
             </a>
         </div>
@@ -94,16 +88,8 @@ function sidebarActive(string $page, string $activePage): string {
 </aside>
 
 <script>
-    function openLogoutModal() {
-        const modal = document.getElementById('logoutModal');
-        modal.style.display = 'flex';
-    }
-
-    function closeLogoutModal() {
-        const modal = document.getElementById('logoutModal');
-        modal.style.display = 'none';
-    }
-
+    function openLogoutModal() { document.getElementById('logoutModal').style.display = 'flex'; }
+    function closeLogoutModal() { document.getElementById('logoutModal').style.display = 'none'; }
     document.getElementById('logoutModal').addEventListener('click', function(e) {
         if (e.target === this) closeLogoutModal();
     });
